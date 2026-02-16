@@ -1,256 +1,76 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
-<title>Health and Social Care Simulation</title>
-
+<title>Simulation Learning Platform</title>
 <style>
 
-body{
+body {
+font-family: Arial;
+background-color: #f4f6f8;
+text-align: center;
+padding-top: 100px;
+}
 
-font-family:Arial;
-background:#f0f4f8;
-padding:30px;
+h1 {
+color: #2c3e50;
+}
+
+button {
+
+display: block;
+margin: 20px auto;
+padding: 15px 30px;
+font-size: 18px;
+background-color: #007BFF;
+color: white;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+width: 300px;
 
 }
 
-.stage{
+button:hover {
 
-display:none;
-background:white;
-padding:20px;
-border-radius:10px;
-margin-bottom:20px;
-
-}
-
-.active{
-
-display:block;
-
-}
-
-.option{
-
-background:#2b6cb0;
-color:white;
-padding:12px;
-margin:8px 0;
-border-radius:6px;
-cursor:pointer;
-
-}
-
-.option:hover{
-
-background:#1a4f80;
-
-}
-
-button{
-
-padding:10px;
-margin-top:15px;
-cursor:pointer;
+background-color: #0056b3;
 
 }
 
 </style>
-
 </head>
-
 
 <body>
 
+<h1>Interactive Simulation Platform</h1>
 
-<h1>Medication Care Simulation</h1>
+<p>Select your learning area:</p>
 
+<button onclick="location.href='health.html'">
 
-<!-- Stage 1 -->
+Health & Social Care
 
-
-<div id="stage1" class="stage active">
-
-<h2>Stage 1</h2>
-
-<p>A resident refuses medication.</p>
-
-<div class="option" onclick="nextStage(2,3)">
-Explain calmly why medication helps
-</div>
-
-<div class="option" onclick="nextStage(2,1)">
-Tell her she must take it
-</div>
-
-<div class="option" onclick="nextStage(2,0)">
-Leave and do nothing
-</div>
-
-<div class="option" onclick="nextStage(2,2)">
-Inform the nurse
-</div>
-
-</div>
-
-
-
-<!-- Stage 2 -->
-
-
-<div id="stage2" class="stage">
-
-<h2>Stage 2</h2>
-
-<p>The resident looks anxious.</p>
-
-<div class="option" onclick="nextStage(3,3)">
-Listen and reassure
-</div>
-
-<div class="option" onclick="nextStage(3,1)">
-Repeat instructions
-</div>
-
-<div class="option" onclick="nextStage(3,0)">
-Ignore feelings
-</div>
-
-</div>
-
-
-
-<!-- Stage 3 -->
-
-
-<div id="stage3" class="stage">
-
-<h2>Stage 3</h2>
-
-<p>Final decision.</p>
-
-<div class="option" onclick="nextStage(4,3)">
-Follow proper care procedure
-</div>
-
-<div class="option" onclick="nextStage(4,0)">
-Force medication
-</div>
-
-</div>
-
-
-
-<!-- Result -->
-
-
-<div id="stage4" class="stage">
-
-<h2>Final Result</h2>
-
-<p id="resultText"></p>
-
-<p id="scoreText"></p>
-
-<button onclick="restartSimulation()">
-Restart Simulation
 </button>
 
-</div>
+
+<button onclick="location.href='business.html'">
+
+Business
+
+</button>
 
 
+<button onclick="location.href='digital.html'">
 
-<script>
+Digital Skills
 
-
-let score=0;
-
-
-function nextStage(stage,points){
-
-score = score + points;
+</button>
 
 
-document.querySelectorAll(".stage")
+<button onclick="location.href='english.html'">
 
-.forEach(s => s.classList.remove("active"));
+English
 
-
-document.getElementById("stage"+stage)
-
-.classList.add("active");
-
-
-if(stage==4){
-
-showResult();
-
-}
-
-}
-
-
-
-function showResult(){
-
-let text="";
-
-let maxScore=9;
-
-
-if(score<=2){
-
-text="This was an unprofessional decision.";
-
-}
-
-else if(score<=5){
-
-text="Acceptable, but improvement is needed.";
-
-}
-
-else if(score<=7){
-
-text="Good, but I know you can do better.";
-
-}
-
-else{
-
-text="Excellent professional decision.";
-
-}
-
-
-document.getElementById("resultText").innerText=text;
-
-document.getElementById("scoreText").innerText=
-
-"Your score: "+score+" / "+maxScore;
-
-}
-
-
-
-function restartSimulation(){
-
-score=0;
-
-document.querySelectorAll(".stage")
-
-.forEach(s => s.classList.remove("active"));
-
-document.getElementById("stage1")
-
-.classList.add("active");
-
-}
-
-
-</script>
-
+</button>
 
 </body>
 

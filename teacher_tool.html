@@ -9,21 +9,22 @@
 body{
 font-family:Arial;
 background:#eef4fa;
-padding:30px;
+padding:20px;
 }
 
 .box{
 background:white;
 padding:20px;
-max-width:800px;
+max-width:900px;
 margin:auto;
 border-radius:10px;
+margin-bottom:20px;
 }
 
-input, textarea{
+textarea,input{
 width:100%;
-margin:8px 0;
-padding:10px;
+padding:8px;
+margin:5px 0;
 }
 
 button{
@@ -31,8 +32,9 @@ padding:12px;
 background:#1976d2;
 color:white;
 border:none;
-margin-top:10px;
 width:100%;
+margin-top:10px;
+cursor:pointer;
 }
 
 </style>
@@ -41,67 +43,97 @@ width:100%;
 
 <body>
 
-<div class="box">
+<h1>SatooriLabs Simulation Creator</h1>
 
-<h2>Create Simulation</h2>
+<div id="container"></div>
 
-<label>Stage 1 Scenario</label>
-<textarea id="s1"></textarea>
+<button onclick="save()">SAVE SIMULATION</button>
 
-<label>Option A</label>
-<input id="s1a">
-<label>Points</label>
-<input id="p1a">
-
-<label>Option B</label>
-<input id="s1b">
-<label>Points</label>
-<input id="p1b">
-
-<label>Option C</label>
-<input id="s1c">
-<label>Points</label>
-<input id="p1c">
-
-<label>Option D</label>
-<input id="s1d">
-<label>Points</label>
-<input id="p1d">
-
-<button onclick="save()">Save Simulation</button>
-
-</div>
+<button onclick="exportSim()">EXPORT FILE</button>
 
 <script>
 
+let stages=4;
+
+let container=document.getElementById("container");
+
+for(let i=1;i<=stages;i++){
+
+container.innerHTML+=`
+
+<div class="box">
+
+<h3>Stage ${i}</h3>
+
+<textarea id="scenario${i}" placeholder="Scenario"></textarea>
+
+<input id="A${i}" placeholder="Option A">
+<input id="Ap${i}" placeholder="Points">
+
+<input id="B${i}" placeholder="Option B">
+<input id="Bp${i}" placeholder="Points">
+
+<input id="C${i}" placeholder="Option C">
+<input id="Cp${i}" placeholder="Points">
+
+<input id="D${i}" placeholder="Option D">
+<input id="Dp${i}" placeholder="Points">
+
+</div>
+
+`;
+
+}
+
 function save(){
 
-let data={
+let sim=[];
 
-scenario:document.getElementById("s1").value,
+for(let i=1;i<=stages;i++){
+
+sim.push({
+
+scenario:document.getElementById("scenario"+i).value,
 
 options:[
 
-{text:document.getElementById("s1a").value,points:document.getElementById("p1a").value},
+{text:document.getElementById("A"+i).value,points:document.getElementById("Ap"+i).value},
 
-{text:document.getElementById("s1b").value,points:document.getElementById("p1b").value},
+{text:document.getElementById("B"+i).value,points:document.getElementById("Bp"+i).value},
 
-{text:document.getElementById("s1c").value,points:document.getElementById("p1c").value},
+{text:document.getElementById("C"+i).value,points:document.getElementById("Cp"+i).value},
 
-{text:document.getElementById("s1d").value,points:document.getElementById("p1d").value}
+{text:document.getElementById("D"+i).value,points:document.getElementById("Dp"+i).value}
 
 ]
 
-};
+});
 
-localStorage.setItem("simulation",JSON.stringify(data));
+}
 
-alert("Simulation Saved");
+localStorage.setItem("sim",JSON.stringify(sim));
+
+alert("Saved");
+
+}
+
+function exportSim(){
+
+let data=localStorage.getItem("sim");
+
+let blob=new Blob([data],{type:"application/json"});
+
+let a=document.createElement("a");
+
+a.href=URL.createObjectURL(blob);
+
+a.download="simulation.json";
+
+a.click();
 
 }
 
 </script>
 
 </body>
-
 </html>

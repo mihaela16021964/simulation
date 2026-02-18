@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SatooriLabs Business Simulation</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f8fb;
+padding:30px;
+}
+
+.box{
+background:white;
+padding:20px;
+max-width:700px;
+margin:auto;
+border-radius:10px;
+}
+
+button{
+display:block;
+margin:10px 0;
+padding:12px;
+width:100%;
+background:#1976d2;
+color:white;
+border:none;
+border-radius:6px;
+font-size:16px;
+}
+
+button:hover{
+background:#0d47a1;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Coffee Shop Crisis Simulation</h2>
+
+<p id="text"></p>
+
+<div id="options"></div>
+
+</div>
+
+<script>
+
+let stage=0;
+let score=0;
+
+let stages=[
+
+{
+text:"A customer complains their coffee is cold.",
+options:[
+
+{t:"Apologise and replace immediately",p:10},
+
+{t:"Explain it was just made",p:3},
+
+{t:"Ignore complaint",p:0},
+
+{t:"Blame colleague",p:-5}
+
+]
+},
+
+{
+text:"The queue becomes longer.",
+options:[
+
+{t:"Stay calm and organised",p:10},
+
+{t:"Rush and panic",p:3},
+
+{t:"Complain loudly",p:0}
+
+]
+},
+
+{
+text:"Your manager is watching.",
+options:[
+
+{t:"Stay professional",p:10},
+
+{t:"Avoid eye contact",p:3}
+
+]
+},
+
+{
+text:"End of shift review.",
+options:[
+
+{t:"Finish simulation",p:0}
+
+]
+}
+
+];
+
+function show(){
+
+let s=stages[stage];
+
+document.getElementById("text").innerHTML=s.text;
+
+let html="";
+
+s.options.forEach(o=>{
+
+html+=`<button onclick="choose(${o.p})">${o.t}</button>`;
+
+});
+
+document.getElementById("options").innerHTML=html;
+
+}
+
+function choose(points){
+
+score+=points;
+
+stage++;
+
+if(stage>=stages.length){
+
+result();
+
+return;
+
+}
+
+show();
+
+}
+
+function result(){
+
+let message="";
+
+if(score>=30){
+
+message="Excellent professional decision making.";
+
+}
+
+else if(score>=15){
+
+message="Good, but you can improve.";
+
+}
+
+else{
+
+message="This was an unprofessional decision.";
+
+}
+
+document.querySelector(".box").innerHTML=
+
+`<h2>Simulation Complete</h2>
+
+<p>Your score: ${score}</p>
+
+<p>${message}</p>`;
+
+}
+
+show();
+
+</script>
+
+</body>
+</html>

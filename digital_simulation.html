@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SatooriLabs Digital Skills Simulation</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f8fb;
+padding:30px;
+}
+
+.box{
+background:white;
+padding:20px;
+max-width:700px;
+margin:auto;
+border-radius:10px;
+}
+
+button{
+display:block;
+margin:10px 0;
+padding:12px;
+width:100%;
+background:#1976d2;
+color:white;
+border:none;
+border-radius:6px;
+font-size:16px;
+}
+
+button:hover{
+background:#0d47a1;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Cybersecurity Breach Simulation</h2>
+
+<p id="text"></p>
+
+<div id="options"></div>
+
+</div>
+
+<script>
+
+let stage=0;
+let score=0;
+
+let stages=[
+
+{
+text:"You receive an email asking you to urgently confirm your password.",
+options:[
+
+{t:"Report the email as phishing",p:10},
+
+{t:"Ignore the email",p:5},
+
+{t:"Click the link and enter password",p:-10},
+
+{t:"Forward to colleague asking if it is real",p:2}
+
+]
+},
+
+{
+text:"Your computer starts behaving strangely.",
+options:[
+
+{t:"Disconnect from internet and report IT",p:10},
+
+{t:"Restart computer",p:3},
+
+{t:"Ignore and continue working",p:-5}
+
+]
+},
+
+{
+text:"You notice unknown software installed.",
+options:[
+
+{t:"Report immediately",p:10},
+
+{t:"Try to uninstall yourself",p:3}
+
+]
+},
+
+{
+text:"Security review begins.",
+options:[
+
+{t:"Finish simulation",p:0}
+
+]
+}
+
+];
+
+function show(){
+
+let s=stages[stage];
+
+document.getElementById("text").innerHTML=s.text;
+
+let html="";
+
+s.options.forEach(o=>{
+
+html+=`<button onclick="choose(${o.p})">${o.t}</button>`;
+
+});
+
+document.getElementById("options").innerHTML=html;
+
+}
+
+function choose(points){
+
+score+=points;
+
+stage++;
+
+if(stage>=stages.length){
+
+result();
+
+return;
+
+}
+
+show();
+
+}
+
+function result(){
+
+let message="";
+
+if(score>=30){
+
+message="Excellent cybersecurity awareness.";
+
+}
+
+else if(score>=15){
+
+message="Good awareness, but more caution is needed.";
+
+}
+
+else{
+
+message="Unsafe behaviour. Immediate training required.";
+
+}
+
+document.querySelector(".box").innerHTML=
+
+`<h2>Simulation Complete</h2>
+
+<p>Your score: ${score}</p>
+
+<p>${message}</p>`;
+
+}
+
+show();
+
+</script>
+
+</body>
+</html>

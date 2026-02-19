@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Digital Skills Simulation – SatooriLabs</title>
+
+<style>
+
+body {
+
+font-family: Arial;
+background-color: #eef2f7;
+text-align: center;
+padding: 40px;
+
+}
+
+.box {
+
+background: white;
+padding: 25px;
+margin: auto;
+width: 60%;
+border-radius: 10px;
+box-shadow: 0 0 12px rgba(0,0,0,0.15);
+
+}
+
+button {
+
+display: block;
+margin: 10px auto;
+padding: 12px 20px;
+font-size: 16px;
+background-color: #0066cc;
+color: white;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+
+}
+
+button:hover {
+
+background-color: #004999;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Digital Skills Simulation</h2>
+
+<p id="scenario"></p>
+
+<div id="options"></div>
+
+</div>
+
+<script>
+
+let stage = 0;
+let score = 0;
+
+const scenarios = [
+
+{
+
+text: "You receive an email asking for your password to 'fix your account'.",
+
+options: [
+
+{ text: "Report email as phishing", score: 10 },
+
+{ text: "Reply with password", score: -20 },
+
+{ text: "Ignore it", score: 0 },
+
+{ text: "Forward to friends", score: -10 }
+
+]
+
+},
+
+{
+
+text: "You must send a professional email to a client.",
+
+options: [
+
+{ text: "Use formal language and clear structure", score: 10 },
+
+{ text: "Use informal slang", score: -10 },
+
+{ text: "Send empty email", score: -5 }
+
+]
+
+},
+
+{
+
+text: "You create an online post about your workplace.",
+
+options: [
+
+{ text: "Respect confidentiality", score: 10 },
+
+{ text: "Share private internal information", score: -20 }
+
+]
+
+},
+
+{
+
+text: "You create a password for your account.",
+
+options: [
+
+{ text: "Use strong secure password", score: 10 },
+
+{ text: "Use '123456'", score: -20 }
+
+]
+
+}
+
+];
+
+function showStage() {
+
+if(stage >= scenarios.length) {
+
+let result = "";
+
+if(score >= 30)
+
+result = "Excellent digital professional behaviour.";
+
+else if(score >= 10)
+
+result = "Good digital skills, but improve further.";
+
+else
+
+result = "This behaviour is unsafe and unprofessional.";
+
+document.getElementById("scenario").innerHTML =
+
+result + "<br><br>Your score: " + score;
+
+document.getElementById("options").innerHTML = "";
+
+return;
+
+}
+
+document.getElementById("scenario").innerHTML =
+
+scenarios[stage].text;
+
+let buttons = "";
+
+scenarios[stage].options.forEach((option, index) => {
+
+buttons +=
+
+"<button onclick='choose(" + index + ")'>" +
+
+option.text +
+
+"</button>";
+
+});
+
+document.getElementById("options").innerHTML = buttons;
+
+}
+
+function choose(index) {
+
+score += scenarios[stage].options[index].score;
+
+stage++;
+
+showStage();
+
+}
+
+showStage();
+
+</script>
+
+</body>
+
+</html>

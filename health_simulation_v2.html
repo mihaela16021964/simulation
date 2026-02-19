@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Health Simulation – SatooriLabs</title>
+<style>
+body {
+font-family: Arial;
+background-color: #f4f7fb;
+text-align: center;
+padding: 40px;
+}
+
+.box {
+background: white;
+padding: 20px;
+margin: auto;
+width: 60%;
+border-radius: 10px;
+box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+button {
+display: block;
+margin: 10px auto;
+padding: 10px 20px;
+font-size: 16px;
+background-color: #007BFF;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+}
+
+button:hover {
+background-color: #0056b3;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Health & Social Care Simulation</h2>
+
+<p id="scenario"></p>
+
+<div id="options"></div>
+
+</div>
+
+<script>
+
+let stage = 0;
+let score = 0;
+
+const scenarios = [
+
+{
+text: "A patient refuses medication.",
+options: [
+
+{ text: "Respect decision and inform nurse", score: 10 },
+
+{ text: "Force patient", score: 0 },
+
+{ text: "Ignore patient", score: -5 },
+
+{ text: "Leave room", score: -10 }
+
+]
+},
+
+{
+text: "Patient feels anxious.",
+options: [
+
+{ text: "Listen and reassure", score: 10 },
+
+{ text: "Say you are busy", score: -5 },
+
+{ text: "Call colleague", score: 5 }
+
+]
+},
+
+{
+text: "You made a mistake.",
+options: [
+
+{ text: "Report immediately", score: 10 },
+
+{ text: "Hide mistake", score: -10 }
+
+]
+},
+
+{
+text: "Patient thanks you emotionally.",
+options: [
+
+{ text: "Respond professionally", score: 10 },
+
+{ text: "Ignore", score: -5 }
+
+]
+}
+
+];
+
+function showStage() {
+
+if(stage >= scenarios.length) {
+
+let result = "";
+
+if(score >= 30)
+result = "Excellent professional decision making.";
+
+else if(score >= 15)
+result = "Good, but you can improve.";
+
+else
+result = "This was an unprofessional decision path.";
+
+document.getElementById("scenario").innerHTML =
+result + "<br><br>Your score: " + score;
+
+document.getElementById("options").innerHTML = "";
+
+return;
+
+}
+
+document.getElementById("scenario").innerHTML =
+scenarios[stage].text;
+
+let buttons = "";
+
+scenarios[stage].options.forEach((option, index) => {
+
+buttons += "<button onclick='choose(" + index + ")'>" +
+option.text +
+"</button>";
+
+});
+
+document.getElementById("options").innerHTML = buttons;
+
+}
+
+function choose(index) {
+
+score += scenarios[stage].options[index].score;
+
+stage++;
+
+showStage();
+
+}
+
+showStage();
+
+</script>
+
+</body>
+
+</html>

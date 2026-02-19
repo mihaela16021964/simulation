@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Business Simulation – SatooriLabs</title>
+<style>
+
+body {
+
+font-family: Arial;
+background-color: #eef2f7;
+text-align: center;
+padding: 40px;
+
+}
+
+.box {
+
+background: white;
+padding: 25px;
+margin: auto;
+width: 60%;
+border-radius: 10px;
+box-shadow: 0 0 12px rgba(0,0,0,0.15);
+
+}
+
+button {
+
+display: block;
+margin: 10px auto;
+padding: 12px 20px;
+font-size: 16px;
+background-color: #0066cc;
+color: white;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+
+}
+
+button:hover {
+
+background-color: #004999;
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Business Decision-Making Simulation</h2>
+
+<p id="scenario"></p>
+
+<div id="options"></div>
+
+</div>
+
+<script>
+
+let stage = 0;
+let score = 0;
+
+const scenarios = [
+
+{
+
+text: "You are the manager of a small coffee shop. Sales are dropping.",
+
+options: [
+
+{ text: "Analyse customer feedback", score: 10 },
+
+{ text: "Ignore the problem", score: -10 },
+
+{ text: "Blame staff", score: -5 },
+
+{ text: "Close earlier", score: -5 }
+
+]
+
+},
+
+{
+
+text: "An employee arrives late repeatedly.",
+
+options: [
+
+{ text: "Discuss privately and support improvement", score: 10 },
+
+{ text: "Ignore behaviour", score: -5 },
+
+{ text: "Warn aggressively", score: -5 }
+
+]
+
+},
+
+{
+
+text: "Customer complains publicly online.",
+
+options: [
+
+{ text: "Respond professionally and solve issue", score: 10 },
+
+{ text: "Delete comment", score: -10 }
+
+]
+
+},
+
+{
+
+text: "Opportunity to expand business appears.",
+
+options: [
+
+{ text: "Research and plan carefully", score: 10 },
+
+{ text: "Invest immediately without planning", score: -5 }
+
+]
+
+}
+
+];
+
+function showStage() {
+
+if(stage >= scenarios.length) {
+
+let result = "";
+
+if(score >= 30)
+
+result = "Excellent business leadership.";
+
+else if(score >= 15)
+
+result = "Good decisions, with room for growth.";
+
+else
+
+result = "This decision path would harm the business.";
+
+document.getElementById("scenario").innerHTML =
+
+result + "<br><br>Your score: " + score;
+
+document.getElementById("options").innerHTML = "";
+
+return;
+
+}
+
+document.getElementById("scenario").innerHTML =
+
+scenarios[stage].text;
+
+let buttons = "";
+
+scenarios[stage].options.forEach((option, index) => {
+
+buttons +=
+
+"<button onclick='choose(" + index + ")'>" +
+
+option.text +
+
+"</button>";
+
+});
+
+document.getElementById("options").innerHTML = buttons;
+
+}
+
+function choose(index) {
+
+score += scenarios[stage].options[index].score;
+
+stage++;
+
+showStage();
+
+}
+
+showStage();
+
+</script>
+
+</body>
+
+</html>

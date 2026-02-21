@@ -1,58 +1,51 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
-<title>Health and Social Care Simulation</title>
+<title>Health & Social Care Simulation – SatooriLabs</title>
 
 <style>
 
 body{
-
-font-family:Arial;
-background:#f0f4f8;
-padding:30px;
-
+font-family: Arial;
+background-color:#f4f8fb;
+text-align:center;
+padding:40px;
 }
 
-.stage{
+.box{
 
-display:none;
 background:white;
-padding:20px;
+padding:30px;
 border-radius:10px;
-margin-bottom:20px;
-
-}
-
-.active{
-
-display:block;
-
-}
-
-.option{
-
-background:#2b6cb0;
-color:white;
-padding:12px;
-margin:8px 0;
-border-radius:6px;
-cursor:pointer;
-
-}
-
-.option:hover{
-
-background:#1a4f80;
+width:60%;
+margin:auto;
+box-shadow:0px 0px 10px rgba(0,0,0,0.2);
 
 }
 
 button{
 
-padding:10px;
-margin-top:15px;
+display:block;
+margin:10px auto;
+padding:10px 20px;
+font-size:16px;
+border:none;
+border-radius:5px;
+background-color:#007BFF;
+color:white;
 cursor:pointer;
+
+}
+
+button:hover{
+
+background-color:#0056b3;
+
+}
+
+.restart{
+
+background-color:#28a745;
 
 }
 
@@ -60,129 +53,136 @@ cursor:pointer;
 
 </head>
 
-
 <body>
 
+<div class="box">
 
-<h1>Medication Care Simulation</h1>
+<h2>Health & Social Care Simulation</h2>
 
+<div id="question"></div>
 
-<!-- Stage 1 -->
+<div id="options"></div>
 
+<div id="result"></div>
 
-<div id="stage1" class="stage active">
-
-<h2>Stage 1</h2>
-
-<p>A resident refuses medication.</p>
-
-<div class="option" onclick="nextStage(2,3)">
-Explain calmly why medication helps
-</div>
-
-<div class="option" onclick="nextStage(2,1)">
-Tell her she must take it
-</div>
-
-<div class="option" onclick="nextStage(2,0)">
-Leave and do nothing
-</div>
-
-<div class="option" onclick="nextStage(2,2)">
-Inform the nurse
-</div>
+<button class="restart" onclick="restartSimulation()">Restart</button>
 
 </div>
-
-
-
-<!-- Stage 2 -->
-
-
-<div id="stage2" class="stage">
-
-<h2>Stage 2</h2>
-
-<p>The resident looks anxious.</p>
-
-<div class="option" onclick="nextStage(3,3)">
-Listen and reassure
-</div>
-
-<div class="option" onclick="nextStage(3,1)">
-Repeat instructions
-</div>
-
-<div class="option" onclick="nextStage(3,0)">
-Ignore feelings
-</div>
-
-</div>
-
-
-
-<!-- Stage 3 -->
-
-
-<div id="stage3" class="stage">
-
-<h2>Stage 3</h2>
-
-<p>Final decision.</p>
-
-<div class="option" onclick="nextStage(4,3)">
-Follow proper care procedure
-</div>
-
-<div class="option" onclick="nextStage(4,0)">
-Force medication
-</div>
-
-</div>
-
-
-
-<!-- Result -->
-
-
-<div id="stage4" class="stage">
-
-<h2>Final Result</h2>
-
-<p id="resultText"></p>
-
-<p id="scoreText"></p>
-
-<button onclick="restartSimulation()">
-Restart Simulation
-</button>
-
-</div>
-
 
 
 <script>
 
+let score = 0;
 
-let score=0;
-
-
-function nextStage(stage,points){
-
-score = score + points;
+let stage = 0;
 
 
-document.querySelectorAll(".stage")
+let simulation = [
 
-.forEach(s => s.classList.remove("active"));
+{
+
+question:"A patient refuses medication. What do you do?",
+
+options:[
+
+{text:"Respect decision and inform senior", score:5},
+
+{text:"Force medication", score:0},
+
+{text:"Ignore situation", score:1},
+
+{text:"Ask colleague to deal with it", score:2}
+
+]
+
+},
+
+{
+
+question:"Patient is upset. Your response?",
+
+options:[
+
+{text:"Listen actively", score:5},
+
+{text:"Tell them to calm down", score:1},
+
+{text:"Ignore", score:0}
+
+]
+
+},
+
+{
+
+question:"Confidential information is visible. What do you do?",
+
+options:[
+
+{text:"Secure it immediately", score:5},
+
+{text:"Leave it", score:0}
+
+]
+
+},
+
+{
+
+question:"Patient thanks you emotionally.",
+
+options:[
+
+{text:"Respond professionally and empathetically", score:5}
+
+]
+
+}
+
+];
 
 
-document.getElementById("stage"+stage)
 
-.classList.add("active");
+function loadStage(){
+
+let q = simulation[stage];
+
+document.getElementById("question").innerHTML = q.question;
+
+document.getElementById("options").innerHTML = "";
+
+q.options.forEach((option,index)=>{
+
+let button = document.createElement("button");
+
+button.innerHTML = option.text;
+
+button.onclick = function(){
+
+choose(index);
+
+};
+
+document.getElementById("options").appendChild(button);
+
+});
+
+}
 
 
-if(stage==4){
+function choose(index){
+
+score = score + simulation[stage].options[index].score;
+
+stage++;
+
+if(stage < simulation.length){
+
+loadStage();
+
+}
+
+else{
 
 showResult();
 
@@ -191,62 +191,37 @@ showResult();
 }
 
 
+function showResult(){
 
-function saveResult("Health Simulation", score);
+saveResult("Health Simulation", score);
 
-function saveResult(scenario, score){
+let message="";
 
-let student = localStorage.getItem("studentName");
+if(score>=18){
 
-let results = JSON.parse(localStorage.getItem(student)) || {};
-
-if (!results[scenario]){
-
-results[scenario] = [];
+message="Excellent professional decision-making.";
 
 }
 
-results[scenario].push(score);
+else if(score>=10){
 
-localStorage.setItem(student, JSON.stringify(results));
-
-}showResult(){
-
-let text="";
-
-let maxScore=9;
-
-
-if(score<=2){
-
-text="This was an unprofessional decision.";
-
-}
-
-else if(score<=5){
-
-text="Acceptable, but improvement is needed.";
-
-}
-
-else if(score<=7){
-
-text="Good, but I know you can do better.";
+message="Good, but you can improve.";
 
 }
 
 else{
 
-text="Excellent professional decision.";
+message="This was an unprofessional decision. Please review your choices.";
 
 }
 
+document.getElementById("question").innerHTML="Simulation complete";
 
-document.getElementById("resultText").innerText=text;
+document.getElementById("options").innerHTML="";
 
-document.getElementById("scoreText").innerText=
+document.getElementById("result").innerHTML=
 
-"Your score: "+score+" / "+maxScore;
+message+"<br><br>Your score: "+score;
 
 }
 
@@ -256,21 +231,48 @@ function restartSimulation(){
 
 score=0;
 
-document.querySelectorAll(".stage")
+stage=0;
 
-.forEach(s => s.classList.remove("active"));
+loadStage();
 
-document.getElementById("stage1")
-
-.classList.add("active");
+document.getElementById("result").innerHTML="";
 
 }
 
 
-</script>
 
+function saveResult(scenario, score){
+
+let student = localStorage.getItem("studentName");
+
+if(!student){
+
+student="Guest";
+
+}
+
+let results = JSON.parse(localStorage.getItem(student)) || {};
+
+if(!results[scenario]){
+
+results[scenario]=[];
+
+}
+
+results[scenario].push(score);
+
+localStorage.setItem(student, JSON.stringify(results));
+
+}
+
+
+
+loadStage();
+
+</script>
 
 </body>
 
 </html>
+
 

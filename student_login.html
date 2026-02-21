@@ -1,49 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SatooriLabs – Student Login</title>
+<title>SatooriLabs — Student Login</title>
 
 <style>
 
 body{
-font-family:Arial;
-background:#f4f8fb;
+font-family: Arial;
 text-align:center;
-padding:50px;
+background:#f0f4f8;
 }
 
-.container{
+.box{
 background:white;
+width:300px;
+margin:auto;
+margin-top:100px;
 padding:30px;
 border-radius:10px;
-width:400px;
-margin:auto;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
+box-shadow:0 0 10px gray;
 }
 
-input, select{
-
+input{
+width:90%;
 padding:10px;
-width:80%;
 margin:10px;
-font-size:16px;
 }
 
 button{
-
-padding:12px 25px;
-font-size:16px;
+padding:10px 20px;
 background:#007BFF;
 color:white;
 border:none;
 border-radius:5px;
 cursor:pointer;
-}
-
-button:hover{
-
-background:#0056b3;
-
 }
 
 </style>
@@ -52,56 +42,38 @@ background:#0056b3;
 
 <body>
 
-<div class="container">
+<div class="box">
 
-<h2>Welcome to SatooriLabs</h2>
+<h2>Student Login</h2>
 
-<p>Enter your name</p>
+<input type="text" id="studentName" placeholder="Enter your name">
 
-<input type="text" id="studentName" placeholder="Your name">
+<br>
 
-<p>Select Simulation</p>
-
-<select id="simulation">
-
-<option value="health_simulation_v2.html">Health & Social Care</option>
-
-<option value="business_simulation.html">Business</option>
-
-<option value="digital_simulation.html">Digital Skills</option>
-
-</select>
-
-<br><br>
-
-<button onclick="startSimulation()">Start</button>
+<button onclick="login()">
+Enter Platform
+</button>
 
 </div>
 
 <script>
 
-function startSimulation(){
+function login(){
 
-let name=document.getElementById("studentName").value;
-
-let simulation=document.getElementById("simulation").value;
+let name = document.getElementById("studentName").value;
 
 if(name===""){
-
 alert("Please enter your name");
-
 return;
-
 }
 
-localStorage.setItem("studentName",name);
+localStorage.setItem("studentName", name);
 
-window.location.href=simulation;
+window.location.href="health_simulation_v2.html";
 
 }
 
 </script>
 
 </body>
-
 </html>

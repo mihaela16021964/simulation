@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SatooriLabs Student Library</title>
+<style>
+
+body {
+font-family: Arial;
+background-color:#f0f4f8;
+text-align:center;
+padding:40px;
+}
+
+table {
+margin:auto;
+border-collapse:collapse;
+width:80%;
+background:white;
+}
+
+th, td {
+padding:12px;
+border:1px solid #ccc;
+}
+
+th {
+background-color:#007BFF;
+color:white;
+}
+
+button {
+padding:10px 20px;
+margin-top:20px;
+font-size:16px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Your Simulation Library</h1>
+
+<table id="libraryTable">
+
+<tr>
+<th>Scenario</th>
+<th>Attempts</th>
+<th>Best Score</th>
+<th>Last Score</th>
+</tr>
+
+</table>
+
+<button onclick="goBack()">Back to Home</button>
+
+<script>
+
+let student = localStorage.getItem("studentName");
+
+let results = JSON.parse(localStorage.getItem(student)) || {};
+
+let table = document.getElementById("libraryTable");
+
+for (let scenario in results){
+
+let attempts = results[scenario];
+
+let best = Math.max(...attempts);
+
+let last = attempts[attempts.length-1];
+
+let row = table.insertRow();
+
+row.insertCell(0).innerHTML = scenario;
+row.insertCell(1).innerHTML = attempts.length;
+row.insertCell(2).innerHTML = best;
+row.insertCell(3).innerHTML = last;
+
+}
+
+function goBack(){
+
+window.location.href="index.html";
+
+}
+
+</script>
+
+</body>
+</html>

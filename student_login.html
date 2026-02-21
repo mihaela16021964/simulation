@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SatooriLabs – Student Login</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f8fb;
+text-align:center;
+padding:50px;
+}
+
+.container{
+background:white;
+padding:30px;
+border-radius:10px;
+width:400px;
+margin:auto;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+input, select{
+
+padding:10px;
+width:80%;
+margin:10px;
+font-size:16px;
+}
+
+button{
+
+padding:12px 25px;
+font-size:16px;
+background:#007BFF;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+button:hover{
+
+background:#0056b3;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Welcome to SatooriLabs</h2>
+
+<p>Enter your name</p>
+
+<input type="text" id="studentName" placeholder="Your name">
+
+<p>Select Simulation</p>
+
+<select id="simulation">
+
+<option value="health_simulation_v2.html">Health & Social Care</option>
+
+<option value="business_simulation.html">Business</option>
+
+<option value="digital_simulation.html">Digital Skills</option>
+
+</select>
+
+<br><br>
+
+<button onclick="startSimulation()">Start</button>
+
+</div>
+
+<script>
+
+function startSimulation(){
+
+let name=document.getElementById("studentName").value;
+
+let simulation=document.getElementById("simulation").value;
+
+if(name===""){
+
+alert("Please enter your name");
+
+return;
+
+}
+
+localStorage.setItem("studentName",name);
+
+window.location.href=simulation;
+
+}
+
+</script>
+
+</body>
+
+</html>

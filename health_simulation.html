@@ -192,7 +192,25 @@ showResult();
 
 
 
-function showResult(){
+function saveResult("Health Simulation", score);
+
+function saveResult(scenario, score){
+
+let student = localStorage.getItem("studentName");
+
+let results = JSON.parse(localStorage.getItem(student)) || {};
+
+if (!results[scenario]){
+
+results[scenario] = [];
+
+}
+
+results[scenario].push(score);
+
+localStorage.setItem(student, JSON.stringify(results));
+
+}showResult(){
 
 let text="";
 
@@ -255,3 +273,4 @@ document.getElementById("stage1")
 </body>
 
 </html>
+

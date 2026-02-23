@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SatooriLabs Teacher Dashboard</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f7fb;
+}
+
+.container{
+
+max-width:900px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+
+}
+
+table{
+
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+
+}
+
+th, td{
+
+padding:12px;
+border-bottom:1px solid #ddd;
+text-align:left;
+
+}
+
+th{
+
+background:#2563eb;
+color:white;
+
+}
+
+button{
+
+margin-top:20px;
+padding:10px 20px;
+background:red;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>SatooriLabs Teacher Dashboard</h2>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Student Name</th>
+
+<th>Score</th>
+
+<th>Date</th>
+
+</tr>
+
+</thead>
+
+<tbody id="resultsTable">
+
+</tbody>
+
+</table>
+
+<button onclick="clearResults()">
+
+Clear All Results
+
+</button>
+
+</div>
+
+<script>
+
+
+function loadResults(){
+
+let digital = JSON.parse(localStorage.getItem("satooriDigitalResults")) || [];
+
+let health = JSON.parse(localStorage.getItem("healthResults")) || [];
+
+let business = JSON.parse(localStorage.getItem("businessResults")) || [];
+
+let all = [...digital, ...health, ...business];
+
+
+let table="";
+
+
+all.forEach(r=>{
+
+table += "<tr>";
+
+table += "<td>"+r.name+"</td>";
+
+table += "<td>"+r.score+"</td>";
+
+table += "<td>"+r.date+"</td>";
+
+table += "</tr>";
+
+});
+
+
+document.getElementById("resultsTable").innerHTML = table;
+
+}
+
+
+function clearResults(){
+
+if(confirm("Clear all results?")){
+
+localStorage.clear();
+
+loadResults();
+
+}
+
+}
+
+
+loadResults();
+
+
+</script>
+
+</body>
+
+</html>

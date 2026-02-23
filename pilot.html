@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Welcome to SatooriLabs Pilot</title>
+
+<style>
+
+body{
+
+font-family:Arial;
+background:#f4f7fb;
+text-align:center;
+padding-top:100px;
+
+}
+
+.container{
+
+background:white;
+padding:40px;
+border-radius:10px;
+display:inline-block;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+
+}
+
+button{
+
+padding:15px 30px;
+font-size:18px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+margin-top:20px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Welcome to SatooriLabs</h1>
+
+<p>Simulation Pilot</p>
+
+<p>Please enter your name:</p>
+
+<input type="text" id="studentName"
+style="padding:10px;font-size:16px;width:250px;">
+
+<br>
+
+<button onclick="startPilot()">
+
+Start Simulation
+
+</button>
+
+</div>
+
+<script>
+
+function startPilot(){
+
+let name=document.getElementById("studentName").value;
+
+
+if(name==""){
+
+alert("Please enter your name");
+
+return;
+
+}
+
+
+localStorage.setItem("pilotStudentName",name);
+
+
+window.location.href="health_simulation_v2.html";
+
+
+}
+
+</script>
+
+</body>
+
+</html>

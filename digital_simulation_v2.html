@@ -1,48 +1,51 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
 <head>
-<title>Digital Skills Simulation – SatooriLabs</title>
+<meta charset="UTF-8">
+<title>SatooriLabs – Digital Skills Simulation</title>
 
 <style>
 
-body {
+body{
+font-family:Arial;
+background:#f4f7fb;
+}
 
-font-family: Arial;
-background-color: #eef2f7;
-text-align: center;
-padding: 40px;
+.container{
+
+max-width:700px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
 
 }
 
-.box {
+button{
 
-background: white;
-padding: 25px;
-margin: auto;
-width: 60%;
-border-radius: 10px;
-box-shadow: 0 0 12px rgba(0,0,0,0.15);
-
-}
-
-button {
-
-display: block;
-margin: 10px auto;
-padding: 12px 20px;
-font-size: 16px;
-background-color: #0066cc;
-color: white;
-border: none;
-border-radius: 6px;
-cursor: pointer;
+display:block;
+margin-top:10px;
+padding:12px;
+width:100%;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:16px;
 
 }
 
-button:hover {
+button:hover{
+background:#1d4ed8;
+}
 
-background-color: #004999;
-
+#result{
+font-size:20px;
+font-weight:bold;
+margin-top:20px;
 }
 
 </style>
@@ -51,36 +54,59 @@ background-color: #004999;
 
 <body>
 
-<div class="box">
+<div class="container">
 
 <h2>Digital Skills Simulation</h2>
 
-<p id="scenario"></p>
+<div id="login">
+
+Enter your name:
+
+<input type="text" id="studentName" style="width:100%;padding:10px;margin-top:10px;">
+
+<button onclick="startSimulation()">Start Simulation</button>
+
+</div>
+
+<div id="simulation" style="display:none;">
+
+<div id="question"></div>
 
 <div id="options"></div>
+
+<div id="result"></div>
+
+<button onclick="restartSimulation()">Restart Simulation</button>
+
+</div>
 
 </div>
 
 <script>
 
-let stage = 0;
-let score = 0;
+let studentName="";
 
-const scenarios = [
+let stage=0;
+
+let score=0;
+
+
+
+const scenarios=[
 
 {
 
-text: "You receive an email asking for your password to 'fix your account'.",
+question:"You receive an email asking for your password.",
 
-options: [
+options:[
 
-{ text: "Report email as phishing", score: 10 },
+{ text:"Send password", score:0},
 
-{ text: "Reply with password", score: -20 },
+{ text:"Ignore email", score:5},
 
-{ text: "Ignore it", score: 0 },
+{ text:"Check sender address", score:10},
 
-{ text: "Forward to friends", score: -10 }
+{ text:"Report phishing", score:15}
 
 ]
 
@@ -88,29 +114,17 @@ options: [
 
 {
 
-text: "You must send a professional email to a client.",
+question:"You must create a password.",
 
-options: [
+options:[
 
-{ text: "Use formal language and clear structure", score: 10 },
+{ text:"123456", score:0},
 
-{ text: "Use informal slang", score: -10 },
+{ text:"password", score:5},
 
-{ text: "Send empty email", score: -5 }
+{ text:"John1990", score:10},
 
-]
-
-},
-
-{
-
-text: "You create an online post about your workplace.",
-
-options: [
-
-{ text: "Respect confidentiality", score: 10 },
-
-{ text: "Share private internal information", score: -20 }
+{ text:"A$7kP!9z", score:15}
 
 ]
 
@@ -118,13 +132,35 @@ options: [
 
 {
 
-text: "You create a password for your account.",
+question:"You see fake news online.",
 
-options: [
+options:[
 
-{ text: "Use strong secure password", score: 10 },
+{ text:"Share immediately", score:0},
 
-{ text: "Use '123456'", score: -20 }
+{ text:"Like it", score:5},
+
+{ text:"Ignore", score:10},
+
+{ text:"Verify source", score:15}
+
+]
+
+},
+
+{
+
+question:"A stranger asks for personal info.",
+
+options:[
+
+{ text:"Give info", score:0},
+
+{ text:"Give partial info", score:5},
+
+{ text:"Refuse", score:10},
+
+{ text:"Block and report", score:15}
 
 ]
 
@@ -132,59 +168,65 @@ options: [
 
 ];
 
-function showStage() {
 
-if(stage >= scenarios.length) {
 
-let result = "";
+function startSimulation(){
 
-if(score >= 30)
+studentName=document.getElementById("studentName").value;
 
-result = "Excellent digital professional behaviour.";
+if(studentName==""){
 
-else if(score >= 10)
-
-result = "Good digital skills, but improve further.";
-
-else
-
-result = "This behaviour is unsafe and unprofessional.";
-
-document.getElementById("scenario").innerHTML =
-
-result + "<br><br>Your score: " + score;
-
-document.getElementById("options").innerHTML = "";
+alert("Enter your name");
 
 return;
 
 }
 
-document.getElementById("scenario").innerHTML =
+document.getElementById("login").style.display="none";
 
-scenarios[stage].text;
+document.getElementById("simulation").style.display="block";
 
-let buttons = "";
+stage=0;
 
-scenarios[stage].options.forEach((option, index) => {
+score=0;
 
-buttons +=
-
-"<button onclick='choose(" + index + ")'>" +
-
-option.text +
-
-"</button>";
-
-});
-
-document.getElementById("options").innerHTML = buttons;
+showStage();
 
 }
 
-function choose(index) {
 
-score += scenarios[stage].options[index].score;
+
+function showStage(){
+
+if(stage>=scenarios.length){
+
+showResult();
+
+return;
+
+}
+
+let q=scenarios[stage];
+
+document.getElementById("question").innerHTML="<h3>"+q.question+"</h3>";
+
+let html="";
+
+q.options.forEach((opt,index)=>{
+
+html+="<button onclick='chooseOption("+index+")'>"+opt.text+"</button>";
+
+});
+
+document.getElementById("options").innerHTML=html;
+
+}
+
+
+
+function chooseOption(index){
+
+score+=scenarios[stage].options[index].score;
 
 stage++;
 
@@ -192,28 +234,85 @@ showStage();
 
 }
 
-showStage();
 
-</script>
-<br><br>
 
-<button onclick="restartSimulation()" style="
-padding: 12px 24px;
-font-size: 16px;
-background-color: #2563eb;
-color: white;
-border: none;
-border-radius: 8px;
-cursor: pointer;
-">
-Restart Simulation
-</button>
+function showResult(){
 
-<script>
-function restartSimulation() {
-location.reload();
+let message="";
+
+if(score>=50){
+
+message="Excellent digital professional.";
+
 }
+
+else if(score>=35){
+
+message="Good, but improvement possible.";
+
+}
+
+else if(score>=20){
+
+message="Needs improvement.";
+
+}
+
+else{
+
+message="Unsafe digital behaviour.";
+
+}
+
+
+
+document.getElementById("question").innerHTML="Simulation complete";
+
+document.getElementById("options").innerHTML="";
+
+document.getElementById("result").innerHTML=
+
+studentName+"<br>Score: "+score+"/60<br>"+message;
+
+
+
+saveResult();
+
+}
+
+
+
+function saveResult(){
+
+let results=JSON.parse(localStorage.getItem("satooriDigitalResults")||"[]");
+
+results.push({
+
+name:studentName,
+
+score:score,
+
+date:new Date().toLocaleString()
+
+});
+
+localStorage.setItem("satooriDigitalResults",JSON.stringify(results));
+
+}
+
+
+
+function restartSimulation(){
+
+location.reload();
+
+}
+
+
+
 </script>
+
 </body>
 
 </html>
+

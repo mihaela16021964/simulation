@@ -1,217 +1,220 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Business Simulation – SatooriLabs</title>
+<meta charset="UTF-8">
+<title>SatooriLabs | Business Simulation</title>
+
 <style>
-
-body {
-
+body{
 font-family: Arial;
-background-color: #eef2f7;
-text-align: center;
-padding: 40px;
-
+background:#eef4ff;
+text-align:center;
+padding:40px;
 }
 
-.box {
-
-background: white;
-padding: 25px;
-margin: auto;
-width: 60%;
-border-radius: 10px;
-box-shadow: 0 0 12px rgba(0,0,0,0.15);
-
+.container{
+background:white;
+padding:30px;
+border-radius:10px;
+width:60%;
+margin:auto;
+box-shadow:0px 0px 10px rgba(0,0,0,0.2);
 }
 
-button {
-
-display: block;
-margin: 10px auto;
-padding: 12px 20px;
-font-size: 16px;
-background-color: #0066cc;
-color: white;
-border: none;
-border-radius: 6px;
-cursor: pointer;
-
+.option{
+display:block;
+background:#007BFF;
+color:white;
+padding:12px;
+margin:10px;
+border-radius:6px;
+cursor:pointer;
+border:none;
 }
 
-button:hover {
-
-background-color: #004999;
-
+.option:hover{
+background:#0056b3;
 }
 
+.restart{
+background:#28a745;
+}
+
+.restart:hover{
+background:#1e7e34;
+}
 </style>
+
 </head>
 
 <body>
 
-<div class="box">
+<div class="container">
 
-<h2>Business Decision-Making Simulation</h2>
+<h2>Business Simulation</h2>
 
-<p id="scenario"></p>
+<div id="question"></div>
 
 <div id="options"></div>
+
+<div id="result"></div>
+
+<button class="option restart" onclick="restartSimulation()">
+Restart Simulation
+</button>
 
 </div>
 
 <script>
 
-let stage = 0;
 let score = 0;
+let stage = 0;
 
-const scenarios = [
+let simulation = [
 
 {
-
-text: "You are the manager of a small coffee shop. Sales are dropping.",
-
-options: [
-
-{ text: "Analyse customer feedback", score: 10 },
-
-{ text: "Ignore the problem", score: -10 },
-
-{ text: "Blame staff", score: -5 },
-
-{ text: "Close earlier", score: -5 }
-
+question:"A customer complains about poor service.",
+options:[
+{text:"Listen and resolve professionally", score:5},
+{text:"Ignore complaint", score:0},
+{text:"Blame customer", score:1},
+{text:"Transfer responsibility", score:2}
 ]
-
 },
 
 {
-
-text: "An employee arrives late repeatedly.",
-
-options: [
-
-{ text: "Discuss privately and support improvement", score: 10 },
-
-{ text: "Ignore behaviour", score: -5 },
-
-{ text: "Warn aggressively", score: -5 }
-
+question:"Team missed a deadline.",
+options:[
+{text:"Support and improve process", score:5},
+{text:"Blame team", score:0},
+{text:"Ignore issue", score:1}
 ]
-
 },
 
 {
-
-text: "Customer complains publicly online.",
-
-options: [
-
-{ text: "Respond professionally and solve issue", score: 10 },
-
-{ text: "Delete comment", score: -10 }
-
+question:"Client requests urgent change.",
+options:[
+{text:"Assess and respond professionally", score:5},
+{text:"Refuse immediately", score:0}
 ]
-
 },
 
 {
-
-text: "Opportunity to expand business appears.",
-
-options: [
-
-{ text: "Research and plan carefully", score: 10 },
-
-{ text: "Invest immediately without planning", score: -5 }
-
+question:"Project completed.",
+options:[
+{text:"Review and learn", score:5}
 ]
-
 }
 
 ];
 
-function showStage() {
+function loadStage(){
 
-if(stage >= scenarios.length) {
+let current = simulation[stage];
 
-let result = "";
+document.getElementById("question").innerHTML =
+"<h3>"+current.question+"</h3>";
 
-if(score >= 30)
+let html="";
 
-result = "Excellent business leadership.";
+current.options.forEach((opt,i)=>{
 
-else if(score >= 15)
-
-result = "Good decisions, with room for growth.";
-
-else
-
-result = "This decision path would harm the business.";
-
-document.getElementById("scenario").innerHTML =
-
-result + "<br><br>Your score: " + score;
-
-document.getElementById("options").innerHTML = "";
-
-return;
-
-}
-
-document.getElementById("scenario").innerHTML =
-
-scenarios[stage].text;
-
-let buttons = "";
-
-scenarios[stage].options.forEach((option, index) => {
-
-buttons +=
-
-"<button onclick='choose(" + index + ")'>" +
-
-option.text +
-
+html += "<button class='option' onclick='choose("+i+")'>"
++ opt.text +
 "</button>";
 
 });
 
-document.getElementById("options").innerHTML = buttons;
+document.getElementById("options").innerHTML = html;
 
 }
 
-function choose(index) {
+function choose(i){
 
-score += scenarios[stage].options[index].score;
+score += simulation[stage].options[i].score;
 
 stage++;
 
-showStage();
+if(stage < simulation.length){
+
+loadStage();
+
+}else{
+
+finish();
 
 }
 
-showStage();
-
-</script>
-<br><br>
-
-<button onclick="restartSimulation()" style="
-padding: 12px 24px;
-font-size: 16px;
-background-color: #2563eb;
-color: white;
-border: none;
-border-radius: 8px;
-cursor: pointer;
-">
-Restart Simulation
-</button>
-
-<script>
-function restartSimulation() {
-location.reload();
 }
+
+function finish(){
+
+let feedback="";
+
+if(score>=18){
+
+feedback="Excellent professional performance";
+
+}
+else if(score>=10){
+
+feedback="Good, but improvement possible";
+
+}
+else{
+
+feedback="Unprofessional decision making";
+
+}
+
+document.getElementById("question").innerHTML="Completed";
+
+document.getElementById("options").innerHTML="";
+
+document.getElementById("result").innerHTML=
+
+feedback + "<br><br>Score: "+score;
+
+saveResult(score);
+
+}
+
+function restartSimulation(){
+
+score=0;
+stage=0;
+document.getElementById("result").innerHTML="";
+loadStage();
+
+}
+
+function saveResult(score){
+
+let name = localStorage.getItem("studentName") || "Student";
+
+let results =
+JSON.parse(localStorage.getItem(name)) || {};
+
+if(!results["Business"]){
+
+results["Business"]=[];
+
+}
+
+results["Business"].push({
+
+score:score,
+date:new Date().toLocaleString()
+
+});
+
+localStorage.setItem(name, JSON.stringify(results));
+
+}
+
+loadStage();
+
 </script>
+
 </body>
-
 </html>

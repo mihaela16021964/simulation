@@ -1,127 +1,99 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Welcome to SatooriLabs Pilot</title>
+<title>SatooriLabs Pilot</title>
 
 <style>
-
-body{
-
-font-family:Arial;
-background:#f4f7fb;
-text-align:center;
-padding-top:100px;
-
-}
-
-.container{
-
-background:white;
-padding:40px;
-border-radius:10px;
-display:inline-block;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-
-}
-
-button{
-
-padding:15px 30px;
-font-size:18px;
-background:#2563eb;
-color:white;
-border:none;
-border-radius:8px;
-cursor:pointer;
-margin-top:20px;
-
-}
-
+  body{
+    font-family: Arial;
+    background:#f4f7fb;
+    text-align:center;
+    padding-top:90px;
+    margin:0;
+  }
+  .card{
+    background:white;
+    display:inline-block;
+    padding:36px 40px;
+    border-radius:12px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+    max-width:520px;
+  }
+  input{
+    padding:12px;
+    font-size:16px;
+    width:280px;
+    border:1px solid #cbd5e1;
+    border-radius:8px;
+    margin-top:8px;
+  }
+  button{
+    padding:14px 28px;
+    font-size:18px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    margin-top:18px;
+  }
+  button:hover{ background:#1d4ed8; }
+  small{ color:#475569; display:block; margin-top:14px; }
 </style>
 
 </head>
 
 <body>
 
-<div class="container">
+<div class="card">
+  <h1>Welcome to SatooriLabs</h1>
+  <p><b>Pilot Simulation</b></p>
 
-<h1>Welcome to SatooriLabs</h1>
+  <p>Please enter your name:</p>
+  <input type="text" id="studentName" placeholder="Your name">
 
-<p>Simulation Pilot</p>
+  <br>
 
-<p>Please enter your name:</p>
+  <button onclick="startPilot()">Start Simulation</button>
 
-<input type="text" id="studentName"
-style="padding:10px;font-size:16px;width:250px;">
+  <small>
+    Tip: Use the same name each time, so your attempts are saved correctly.
+  </small>
+</div>
 
-<br>
-
-<button onclick="<script>
+<script>
 function startPilot(){
-  let name = document.getElementById("studentName").value.trim();
+  const name = document.getElementById("studentName").value.trim();
 
   if(name === ""){
     alert("Please enter your name");
     return;
   }
 
-  // 1) Add student to class list (activeStudents)
-  let active = JSON.parse(localStorage.getItem("activeStudents") || "[]");
+  // 1) Add student to the class list so Team Leader can see them
+  const active = JSON.parse(localStorage.getItem("activeStudents") || "[]");
   if(!active.includes(name)){
     active.push(name);
     localStorage.setItem("activeStudents", JSON.stringify(active));
   }
 
-  // 2) If a reminder exists for this student, show it ON OPEN
+  // 2) Show reminder (if Team Leader set one). Show once only.
   const reminderKey = "reminder_" + name;
   const msg = localStorage.getItem(reminderKey);
   if(msg){
     alert(msg);
-    localStorage.removeItem(reminderKey); // show once only
+    localStorage.removeItem(reminderKey);
   }
 
-  // 3) Save name for simulations
+  // 3) Store student name for simulations
   localStorage.setItem("pilotStudentName", name);
+  localStorage.setItem("studentName", name); // compatibility with other files
 
-  // 4) Send them to the chosen simulation (keep yours)
+  // 4) Send to your pilot simulation (change if needed)
   window.location.href = "health_simulation_v2.html";
 }
-</script>">
-
-Start Simulation
-
-</button>
-
-</div>
-
-<script>
-
-function startPilot(){
-
-let name=document.getElementById("studentName").value;
-
-
-if(name==""){
-
-alert("Please enter your name");
-
-return;
-
-}
-
-
-localStorage.setItem("pilotStudentName",name);
-
-
-window.location.href="health_simulation_v2.html";
-
-
-}
-
 </script>
 
 </body>
-
 </html>

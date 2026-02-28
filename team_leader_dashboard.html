@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SatooriLabs – Team Leader Dashboard</title>
+<style>
+  body{font-family:Arial;background:#f4f7fb;margin:0;padding:0;}
+  .card{max-width:980px;margin:60px auto;background:#fff;padding:28px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.08);}
+  h2{margin-top:0}
+  table{width:100%;border-collapse:collapse;margin-top:14px;}
+  th,td{padding:12px;border-bottom:1px solid #e5e7eb;text-align:left;}
+  th{background:#2563eb;color:#fff;}
+  .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:bold;}
+  .ns{background:#fee2e2;color:#991b1b;}      /* Not started */
+  .ip{background:#ffedd5;color:#9a3412;}      /* In progress */
+  .co{background:#dcfce7;color:#166534;}      /* Completed */
+  button{padding:10px 14px;border:none;border-radius:8px;cursor:pointer;}
+  .blue{background:#2563eb;color:#fff;}
+  .gray{background:#e5e7eb;}
+  input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;}
+  .row{display:flex;gap:10px;align-items:center;}
+  .row > *{flex:1}
+  small{color:#475569}
+</style>
+</head>
+
+<body>
+
+<div class="card" id="loginBox">
+  <h2>Team Leader Access</h2>
+  <p>Enter the team leader password:</p>
+  <input type="password" id="leaderPassword" placeholder="Password">
+  <button class="blue" style="margin-top:12px" onclick="login()">Access</button>
+  <p><small>Team Leader can see progress + send reminders. No scores shown.</small></p>
+</div>
+
+<div class="card" id="dash" style="display:none;">
+  <h2>Team Leader Dashboard</h2>
+  <div class="row">
+    <div>
+      <small>Class list is created automatically when students start the pilot.</small>
+    </div>
+    <div style="text-align:right;">
+      <button class="gray" onclick="refresh()">Refresh</button>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Status</th>
+        <th>Reminder</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+
+<script>
+/* CHANGE THIS PASSWORD */
+const TEAM_LEADER_PASSWORD = "Leader2026!";
+
+/* We use these keys:
+   - activeStudents: ["Ana","John",...]
+   - reminder_<Name>: "Your Team Leader encourages you..."
+   - results arrays (if you have them): satooriDigitalResults / healthResults / businessResults
+*/
+function login(){
+  const entered = document.getElementById("leaderPassword").value;
+  if(entered === TEAM_LEADER_PASSWORD){
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("dash").style.display="block";
+    render();
+  } else {
+    alert("Incorrect password");
+  }
+}
+
+function getActiveStudents(){
+  return JSON.parse(localStorage.getItem("activeStudents") || "[]");
+}
+
+// Option A: completed if ANY score exists for the student in any results list
+function isCompleted(name){
+  const digital = JSON.parse(localStorage.getItem("satooriDigitalResults") || "[]");
+  const health  = JSON.parse(localStorage.getItem("healthResults") || "[]");
+  const business= JSON.parse(localStorage.getItem("businessResults") || "[]");
+
+  const any = (arr)=>arr.some(r => (r.name || r.student || "") === name);
+  return any(digital) || any(health) || any(business);
+}
+
+function statusPill(name){
+  // If name is in activeStudents, they started (at least opened pilot)
+  // Completed if score exists; otherwise In Progress.
+  if(isCompleted(name)) return `<span class="pill co">Completed</span>`;
+  return `<span class="pill ip">In progress</span>`;
+}
+
+function sendReminder(name){
+  const key = "reminder_" + name;
+  localStorage.setItem(key, "Your Team Leader encourages you to complete your simulation.");
+  alert("Reminder set for: " + name);
+  render();
+}
+
+function render(){
+  const students = getActiveStudents();
+  const tbody = document.getElementById("rows");
+
+  if(students.length === 0){
+    tbody.innerHTML = `<tr><td colspan="3">No students yet. Run the pilot with students first.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = students.map(name=>{
+    const key = "reminder_" + name;
+    const hasReminder = !!localStorage.getItem(key);
+    return `
+      <tr>
+        <td>${escapeHtml(name)}</td>
+        <td>${statusPill(name)}</td>
+        <td>
+          <button class="blue" onclick="sendReminder('${jsEscape(name)}')">
+            ${hasReminder ? "Reminder already set" : "Send reminder"}
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function refresh(){ render(); }
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function jsEscape(s){
+  return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+}
+</script>
+
+</body>
+</html>

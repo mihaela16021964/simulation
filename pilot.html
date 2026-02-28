@@ -58,7 +58,37 @@ style="padding:10px;font-size:16px;width:250px;">
 
 <br>
 
-<button onclick="startPilot()">
+<button onclick="<script>
+function startPilot(){
+  let name = document.getElementById("studentName").value.trim();
+
+  if(name === ""){
+    alert("Please enter your name");
+    return;
+  }
+
+  // 1) Add student to class list (activeStudents)
+  let active = JSON.parse(localStorage.getItem("activeStudents") || "[]");
+  if(!active.includes(name)){
+    active.push(name);
+    localStorage.setItem("activeStudents", JSON.stringify(active));
+  }
+
+  // 2) If a reminder exists for this student, show it ON OPEN
+  const reminderKey = "reminder_" + name;
+  const msg = localStorage.getItem(reminderKey);
+  if(msg){
+    alert(msg);
+    localStorage.removeItem(reminderKey); // show once only
+  }
+
+  // 3) Save name for simulations
+  localStorage.setItem("pilotStudentName", name);
+
+  // 4) Send them to the chosen simulation (keep yours)
+  window.location.href = "health_simulation_v2.html";
+}
+</script>">
 
 Start Simulation
 

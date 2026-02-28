@@ -9,37 +9,42 @@
     font-family: Arial;
     background:#f4f7fb;
     text-align:center;
-    padding-top:90px;
+    padding-top:70px;
     margin:0;
   }
   .card{
     background:white;
     display:inline-block;
-    padding:36px 40px;
+    padding:34px 40px;
     border-radius:12px;
     box-shadow:0 0 10px rgba(0,0,0,0.1);
-    max-width:520px;
+    max-width:560px;
   }
   input{
     padding:12px;
     font-size:16px;
-    width:280px;
+    width:300px;
     border:1px solid #cbd5e1;
     border-radius:8px;
     margin-top:8px;
   }
-  button{
-    padding:14px 28px;
-    font-size:18px;
+  .btn{
+    width:100%;
+    padding:14px 18px;
+    font-size:16px;
     background:#2563eb;
     color:white;
     border:none;
     border-radius:10px;
     cursor:pointer;
-    margin-top:18px;
+    margin-top:12px;
   }
-  button:hover{ background:#1d4ed8; }
-  small{ color:#475569; display:block; margin-top:14px; }
+  .btn:hover{ background:#1d4ed8; }
+  .green{ background:#16a34a; }
+  .green:hover{ background:#15803d; }
+  .gray{ background:#64748b; }
+  .gray:hover{ background:#475569; }
+  small{ color:#475569; display:block; margin-top:14px; line-height:1.4; }
 </style>
 
 </head>
@@ -48,37 +53,50 @@
 
 <div class="card">
   <h1>Welcome to SatooriLabs</h1>
-  <p><b>Pilot Simulation</b></p>
+  <p><b>Pilot Prototype</b></p>
 
-  <p>Please enter your name:</p>
-  <input type="text" id="studentName" placeholder="Your name">
+  <div id="step1">
+    <p>Please enter your name:</p>
+    <input type="text" id="studentName" placeholder="Your name">
+    <button class="btn" onclick="saveName()">Continue</button>
+    <small>
+      Use the same name each time so your attempts save correctly.
+    </small>
+  </div>
 
-  <br>
+  <div id="step2" style="display:none;">
+    <p id="hello"></p>
 
-  <button onclick="startPilot()">Start Simulation</button>
+    <button class="btn" onclick="go('health_simulation_v2.html')">Run Health & Social Care</button>
+    <button class="btn" onclick="go('business_simulation_v2.html')">Run Business</button>
+    <button class="btn" onclick="go('digital_simulation_v2.html')">Run Digital Skills</button>
 
-  <small>
-    Tip: Use the same name each time, so your attempts are saved correctly.
-  </small>
+    <button class="btn green" onclick="go('student_library_v2.html')">My Library</button>
+    <button class="btn gray" onclick="resetName()">Change name</button>
+
+    <small>
+      Prototype tip: You can run all three simulations one after another.
+      Return here using the “Return to Homepage” button you added.
+    </small>
+  </div>
 </div>
 
 <script>
-function startPilot(){
+function saveName(){
   const name = document.getElementById("studentName").value.trim();
-
   if(name === ""){
     alert("Please enter your name");
     return;
   }
 
-  // 1) Add student to the class list so Team Leader can see them
+  // Add to class list for Team Leader mode
   const active = JSON.parse(localStorage.getItem("activeStudents") || "[]");
   if(!active.includes(name)){
     active.push(name);
     localStorage.setItem("activeStudents", JSON.stringify(active));
   }
 
-  // 2) Show reminder (if Team Leader set one). Show once only.
+  // Reminder popup (show once)
   const reminderKey = "reminder_" + name;
   const msg = localStorage.getItem(reminderKey);
   if(msg){
@@ -86,13 +104,36 @@ function startPilot(){
     localStorage.removeItem(reminderKey);
   }
 
-  // 3) Store student name for simulations
+  // Store name for all simulations (compatibility)
   localStorage.setItem("pilotStudentName", name);
-  localStorage.setItem("studentName", name); // compatibility with other files
+  localStorage.setItem("studentName", name);
 
-  // 4) Send to your pilot simulation (change if needed)
-  window.location.href = "health_simulation_v2.html";
+  // Move to menu
+  document.getElementById("step1").style.display="none";
+  document.getElementById("step2").style.display="block";
+  document.getElementById("hello").innerHTML = "Hello, <b>" + name + "</b>. Choose a simulation:";
 }
+
+function go(file){
+  window.location.href = file;
+}
+
+function resetName(){
+  localStorage.removeItem("pilotStudentName");
+  localStorage.removeItem("studentName");
+  document.getElementById("step2").style.display="none";
+  document.getElementById("step1").style.display="block";
+  document.getElementById("studentName").value = "";
+}
+
+// Auto-skip name entry if already saved
+(function(){
+  const existing = localStorage.getItem("pilotStudentName") || localStorage.getItem("studentName");
+  if(existing){
+    document.getElementById("studentName").value = existing;
+    saveName();
+  }
+})();
 </script>
 
 </body>

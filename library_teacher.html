@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SatooriLabs – Teacher Library</title>
+<style>
+  body{font-family:Arial;background:#f4f7fb;margin:0;}
+  .card{max-width:1100px;margin:24px auto;background:#fff;padding:22px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.08);}
+  table{width:100%;border-collapse:collapse;margin-top:14px;}
+  th,td{padding:12px;border-bottom:1px solid #e5e7eb;text-align:left;}
+  th{background:#2563eb;color:#fff;}
+  button{padding:10px 12px;border:none;border-radius:10px;cursor:pointer;}
+  .blue{background:#2563eb;color:#fff;}
+  .gray{background:#e5e7eb;}
+  .red{background:#ef4444;color:#fff;}
+  .qr{margin-top:12px;border:1px solid #e5e7eb;border-radius:12px;padding:12px;display:inline-block;}
+  small{color:#475569}
+  input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .row > *{flex:1}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Teacher Simulation Library</h2>
+  <div class="row">
+    <a href="teacher_builder_v2.html"><button class="blue" type="button">+ Create New Simulation</button></a>
+    <a href="pilot.html"><button class="gray" type="button">Return to Pilot</button></a>
+    <a href="index.html"><button class="gray" type="button">Homepage</button></a>
+  </div>
+
+  <p><small>Phase 1 note: library is saved in this browser only (localStorage). Share links are for demo/pilot on the same device environment.</small></p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Created</th>
+        <th>Share</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <div id="qrArea"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+function safe(s){ return (s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+
+function basePath(){
+  return location.origin + location.pathname.replace(/[^\/]+$/, "");
+}
+
+function load(){
+  const lib = JSON.parse(localStorage.getItem("teacherSimLibrary") || "[]");
+  const tbody = document.getElementById("rows");
+
+  if(lib.length === 0){
+    tbody.innerHTML = `<tr><td colspan="4">No simulations saved yet. Click “Create New Simulation”.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = lib.map(item=>{
+    const link = `${basePath()}play.html?id=${item.id}`;
+    return `
+      <tr>
+        <td>${safe(item.title)}</td>
+        <td>${safe(item.createdAt)}</td>
+        <td><small>${safe(link)}</small></td>
+        <td style="white-space:nowrap;">
+          <button class="blue" onclick="copyLink('${item.id}')">Copy Link</button>
+          <button class="gray" onclick="openPlay('${item.id}')">Open</button>
+          <button class="gray" onclick="showQR('${item.id}')">QR</button>
+          <button class="red" onclick="delSim('${item.id}')">Delete</button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function linkFor(id){
+  return `${basePath()}play.html?id=${id}`;
+}
+
+async function copyLink(id){
+  const link = linkFor(id);
+  try{
+    await navigator.clipboard.writeText(link);
+    alert("Link copied.");
+  }catch(e){
+    alert("Copy failed. You can copy manually from the table.");
+  }
+}
+
+function openPlay(id){
+  window.open(linkFor(id), "_blank");
+}
+
+function delSim(id){
+  if(!confirm("Delete this simulation from your library?")) return;
+  let lib = JSON.parse(localStorage.getItem("teacherSimLibrary") || "[]");
+  lib = lib.filter(x=>x.id !== id);
+  localStorage.setItem("teacherSimLibrary", JSON.stringify(lib));
+  document.getElementById("qrArea").innerHTML = "";
+  load();
+}
+
+function showQR(id){
+  const area = document.getElementById("qrArea");
+  area.innerHTML = "";
+  const link = linkFor(id);
+
+  const box = document.createElement("div");
+  box.className = "qr";
+  area.appendChild(box);
+
+  const h = document.createElement("h3");
+  h.textContent = "QR Code";
+  area.appendChild(h);
+
+  new QRCode(box, { text: link, width: 220, height: 220 });
+
+  const p = document.createElement("p");
+  p.innerHTML = `<small><b>Link:</b> ${safe(link)}</small>`;
+  area.appendChild(p);
+}
+
+load();
+</script>
+
+</body>
+</html>

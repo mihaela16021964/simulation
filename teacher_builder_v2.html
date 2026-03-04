@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SatooriLabs – Teacher Builder V2</title>
+<style>
+  body{font-family:Arial;background:#f4f7fb;margin:0;}
+  .wrap{max-width:1100px;margin:24px auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.08);}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  label{font-weight:bold;display:block;margin-top:10px;}
+  input, textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;}
+  textarea{min-height:90px;}
+  .btn{padding:12px 14px;border:none;border-radius:10px;cursor:pointer;font-size:15px;}
+  .blue{background:#2563eb;color:#fff;}
+  .green{background:#16a34a;color:#fff;}
+  .gray{background:#e5e7eb;}
+  .preview{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;}
+  .optrow{display:grid;grid-template-columns:1fr 120px;gap:10px;margin-top:10px;}
+  small{color:#475569}
+  hr{border:none;border-top:1px solid #e5e7eb;margin:18px 0;}
+  .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:bold;background:#eef2ff;color:#3730a3;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h2>Teacher Builder V2 <span class="pill">Save → Share Link → QR</span></h2>
+  <small>Phase 1: saves to this teacher’s browser (localStorage). No backend yet.</small>
+  <hr>
+
+  <div class="grid">
+    <!-- Builder -->
+    <div>
+      <label>Simulation Title</label>
+      <input id="title" placeholder="e.g., Geography – River Landforms">
+
+      <label>Stage / Screen Title</label>
+      <input id="stageTitle" placeholder="e.g., Stage 1 – Identify the feature">
+
+      <label>Scenario Text</label>
+      <textarea id="scenario" placeholder="Write the situation the student sees..."></textarea>
+
+      <label>Image URL (optional)</label>
+      <input id="imgUrl" placeholder="https://...jpg / png">
+
+      <label>Audio URL (optional)</label>
+      <input id="audioUrl" placeholder="https://...mp3">
+
+      <label>Video URL (optional)</label>
+      <input id="videoUrl" placeholder="https://...mp4 OR YouTube link">
+
+      <hr>
+      <h3>Options (with hidden points)</h3>
+
+      <div class="optrow">
+        <input id="optA" placeholder="Option A text">
+        <input id="ptsA" type="number" placeholder="pts" value="0">
+      </div>
+      <div class="optrow">
+        <input id="optB" placeholder="Option B text">
+        <input id="ptsB" type="number" placeholder="pts" value="0">
+      </div>
+      <div class="optrow">
+        <input id="optC" placeholder="Option C text">
+        <input id="ptsC" type="number" placeholder="pts" value="0">
+      </div>
+      <div class="optrow">
+        <input id="optD" placeholder="Option D text">
+        <input id="ptsD" type="number" placeholder="pts" value="0">
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+        <button class="btn blue" onclick="updatePreview()">Update Preview</button>
+        <button class="btn green" onclick="saveToLibrary()">Save to Library</button>
+        <a href="library_teacher.html"><button class="btn gray" type="button">Open Teacher Library</button></a>
+        <button class="btn gray" onclick="resetAll()">Reset</button>
+      </div>
+
+      <div id="saveMsg" style="margin-top:10px;font-weight:bold;"></div>
+
+      <small>
+        Notes: URLs can be from YouTube/MP4/MP3 or school-hosted media. Uploads come in Phase 2.
+      </small>
+    </div>
+
+    <!-- Preview -->
+    <div>
+      <h3>Student Preview</h3>
+      <div class="preview" id="previewBox">
+        <p><i>Preview will appear here after you click “Update Preview”.</i></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function safe(s){ return (s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+function rid(len=8){
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out="";
+  for(let i=0;i<len;i++) out += chars[Math.floor(Math.random()*chars.length)];
+  return out;
+}
+function youtubeEmbed(url){
+  if(!url) return "";
+  const u = url.trim();
+  let id = "";
+  if(u.includes("youtube.com/watch?v=")) id = u.split("watch?v=")[1].split("&")[0];
+  else if(u.includes("youtu.be/")) id = u.split("youtu.be/")[1].split("?")[0];
+  if(!id) return "";
+  return `<iframe width="100%" height="260" src="https://www.youtube.com/embed/${id}"
+    title="Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+}
+
+function getFormData(){
+  const title = document.getElementById("title").value.trim();
+  const stageTitle = document.getElementById("stageTitle").value.trim();
+  const scenario = document.getElementById("scenario").value.trim();
+  const imgUrl = document.getElementById("imgUrl").value.trim();
+  const audioUrl = document.getElementById("audioUrl").value.trim();
+  const videoUrl = document.getElementById("videoUrl").value.trim();
+
+  const options = [
+    { text: document.getElementById("optA").value.trim(), pts: Number(document.getElementById("ptsA").value||0) },
+    { text: document.getElementById("optB").value.trim(), pts: Number(document.getElementById("ptsB").value||0) },
+    { text: document.getElementById("optC").value.trim(), pts: Number(document.getElementById("ptsC").value||0) },
+    { text: document.getElementById("optD").value.trim(), pts: Number(document.getElementById("ptsD").value||0) },
+  ].filter(o=>o.text);
+
+  return { title, stageTitle, scenario, imgUrl, audioUrl, videoUrl, options };
+}
+
+function updatePreview(){
+  const d = getFormData();
+  const title = safe(d.title || "Simulation Title");
+  const stageTitle = safe(d.stageTitle || "Stage Title");
+  const scenario = safe(d.scenario || "Scenario text...").replace(/\n/g,"<br>");
+
+  let html = `<h2>${title}</h2><h3>${stageTitle}</h3><p>${scenario}</p>`;
+
+  if(d.imgUrl) html += `<img src="${safe(d.imgUrl)}" alt="Image" style="max-width:100%;border-radius:10px;margin-top:10px;">`;
+  if(d.audioUrl) html += `<div style="margin-top:10px;"><audio controls src="${safe(d.audioUrl)}" style="width:100%;"></audio></div>`;
+
+  const yt = youtubeEmbed(d.videoUrl);
+  if(yt) html += `<div style="margin-top:10px;">${yt}</div>`;
+  else if(d.videoUrl) html += `<div style="margin-top:10px;"><video controls src="${safe(d.videoUrl)}" style="width:100%;border-radius:10px;"></video></div>`;
+
+  html += `<hr><p><b>Choose:</b></p>`;
+  d.options.forEach((o,i)=>{
+    html += `<button style="width:100%;padding:12px;margin-top:8px;background:#2563eb;color:#fff;border:none;border-radius:10px;">Option ${String.fromCharCode(65+i)}: ${safe(o.text)}</button>`;
+  });
+
+  document.getElementById("previewBox").innerHTML = html;
+}
+
+function saveToLibrary(){
+  const d = getFormData();
+
+  if(!d.title){
+    alert("Please add a Simulation Title.");
+    return;
+  }
+  if(d.options.length < 2){
+    alert("Please add at least 2 options.");
+    return;
+  }
+
+  const id = rid(10);
+  const item = {
+    id,
+    createdAt: new Date().toLocaleString(),
+    title: d.title,
+    stageTitle: d.stageTitle || "Stage 1",
+    scenario: d.scenario || "",
+    imgUrl: d.imgUrl || "",
+    audioUrl: d.audioUrl || "",
+    videoUrl: d.videoUrl || "",
+    options: d.options
+  };
+
+  const lib = JSON.parse(localStorage.getItem("teacherSimLibrary") || "[]");
+  lib.push(item);
+  localStorage.setItem("teacherSimLibrary", JSON.stringify(lib));
+
+  const playLink = `${location.origin}${location.pathname.replace(/[^\/]+$/, "")}play.html?id=${id}`;
+
+  document.getElementById("saveMsg").innerHTML =
+    `Saved ✔ <br><small>Share link: <b>${safe(playLink)}</b></small>`;
+
+  // Also copy link (best UX)
+  navigator.clipboard?.writeText(playLink).then(()=>{}).catch(()=>{});
+}
+
+function resetAll(){
+  ["title","stageTitle","scenario","imgUrl","audioUrl","videoUrl","optA","optB","optC","optD","ptsA","ptsB","ptsC","ptsD"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.value = (id.startsWith("pts") ? 0 : "");
+  });
+  document.getElementById("saveMsg").innerHTML = "";
+  document.getElementById("previewBox").innerHTML = "<p><i>Preview will appear here after you click “Update Preview”.</i></p>";
+}
+</script>
+
+</body>
+</html>

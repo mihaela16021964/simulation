@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SatooriLabs – Play Simulation</title>
+<style>
+  body{font-family:Arial;background:#f4f7fb;margin:0;}
+  .card{max-width:900px;margin:24px auto;background:#fff;padding:22px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.08);}
+  button{width:100%;padding:12px;margin-top:10px;background:#2563eb;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px;}
+  button:hover{background:#1d4ed8;}
+  .green{background:#16a34a;}
+  .green:hover{background:#15803d;}
+  small{color:#475569}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div id="content"></div>
+  <div id="opts"></div>
+  <div id="out" style="margin-top:14px;font-weight:bold;"></div>
+  <br>
+  <a href="pilot.html"><button class="green">Return to Pilot</button></a>
+</div>
+
+<script>
+function safe(s){ return (s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+function youtubeEmbed(url){
+  if(!url) return "";
+  const u = url.trim();
+  let id = "";
+  if(u.includes("youtube.com/watch?v=")) id = u.split("watch?v=")[1].split("&")[0];
+  else if(u.includes("youtu.be/")) id = u.split("youtu.be/")[1].split("?")[0];
+  if(!id) return "";
+  return `<iframe width="100%" height="260" src="https://www.youtube.com/embed/${id}"
+    title="Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+}
+
+const params = new URLSearchParams(location.search);
+const id = params.get("id");
+
+const lib = JSON.parse(localStorage.getItem("teacherSimLibrary") || "[]");
+const sim = lib.find(x => x.id === id);
+
+if(!id){
+  document.getElementById("content").innerHTML = "<h2>Missing simulation id.</h2><p><small>Ask your teacher for the correct link.</small></p>";
+} else if(!sim){
+  document.getElementById("content").innerHTML =
+    "<h2>Simulation not found on this device.</h2>" +
+    "<p><small>This is Phase 1 local-storage mode: teacher-created simulations exist only in the teacher’s browser/device.</small></p>";
+} else {
+  const title = safe(sim.title);
+  const stageTitle = safe(sim.stageTitle);
+  const scenario = safe(sim.scenario).replace(/\n/g,"<br>");
+
+  let html = `<h2>${title}</h2><h3>${stageTitle}</h3><p>${scenario}</p>`;
+  if(sim.imgUrl) html += `<img src="${safe(sim.imgUrl)}" style="max-width:100%;border-radius:10px;margin-top:10px;">`;
+  if(sim.audioUrl) html += `<div style="margin-top:10px;"><audio controls src="${safe(sim.audioUrl)}" style="width:100%;"></audio></div>`;
+  const yt = youtubeEmbed(sim.videoUrl);
+  if(yt) html += `<div style="margin-top:10px;">${yt}</div>`;
+  else if(sim.videoUrl) html += `<div style="margin-top:10px;"><video controls src="${safe(sim.videoUrl)}" style="width:100%;border-radius:10px;"></video></div>`;
+
+  document.getElementById("content").innerHTML = html;
+
+  let score = 0;
+  const name = localStorage.getItem("pilotStudentName") || localStorage.getItem("studentName") || "Student";
+
+  document.getElementById("opts").innerHTML = sim.options.map((o,idx)=>
+    `<button onclick="choose(${idx})">${safe(o.text)}</button>`
+  ).join("");
+
+  window.choose = function(idx){
+    score += Number(sim.options[idx].pts || 0);
+
+    // Save attempt (custom)
+    const results = JSON.parse(localStorage.getItem("customResults") || "[]");
+    results.push({ name, simulation: sim.title, score, date: new Date().toLocaleString() });
+    localStorage.setItem("customResults", JSON.stringify(results));
+
+    document.getElementById("out").innerHTML = `Attempt saved. Hidden score now: ${score}`;
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SatooriLabs – Tracker</title>
+
+<style>
+  body{font-family:Arial;background:#f4f7fb;margin:0;}
+  .card{max-width:1200px;margin:24px auto;background:#fff;padding:22px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.08);}
+  h2{margin:0 0 8px 0;}
+  small{color:#475569}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;}
+  .row > *{flex:1;min-width:180px;}
+  input, select{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;}
+  button{padding:10px 12px;border:none;border-radius:10px;cursor:pointer;}
+  .blue{background:#2563eb;color:#fff;}
+  .gray{background:#e5e7eb;}
+  table{width:100%;border-collapse:collapse;margin-top:14px;}
+  th,td{padding:12px;border-bottom:1px solid #e5e7eb;text-align:left;vertical-align:top;}
+  th{background:#2563eb;color:#fff;}
+  .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:bold;}
+  .co{background:#dcfce7;color:#166534;} /* completed */
+  .ip{background:#ffedd5;color:#9a3412;} /* in progress */
+  .ns{background:#fee2e2;color:#991b1b;} /* not started */
+  .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>Tracker (Attempts + Best Score + Last Score)</h2>
+  <small>
+    Phase 1: reads from this browser’s localStorage. This is your “clarity layer” over the raw results.
+  </small>
+
+  <div class="row" style="margin-top:16px;">
+    <input id="studentFilter" placeholder="Filter by student name (e.g., Ana)" oninput="render()">
+    <select id="simFilter" onchange="render()">
+      <option value="">All simulations</option>
+    </select>
+    <button class="blue" onclick="render()">Refresh</button>
+    <button class="gray" onclick="exportCSV()">Export CSV</button>
+  </div>
+
+  <div class="row" style="margin-top:10px;">
+    <a href="teacher_dashboard.html"><button class="gray" type="button">Teacher Dashboard</button></a>
+    <a href="library_teacher.html"><button class="gray" type="button">Teacher Library</button></a>
+    <a href="pilot.html"><button class="gray" type="button">Pilot</button></a>
+    <a href="index.html"><button class="gray" type="button">Homepage</button></a>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Simulation</th>
+        <th>Status</th>
+        <th>Attempts</th>
+        <th>Best score</th>
+        <th>Last score</th>
+        <th>Last attempt</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <div id="summary" style="margin-top:12px;"></div>
+</div>
+
+<script>
+/* ---- Helpers ---- */
+function safe(s){ return (s ?? "").toString().replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+
+function parseList(key){
+  try { return JSON.parse(localStorage.getItem(key) || "[]"); }
+  catch(e){ return []; }
+}
+
+function normalizeResult(r, defaultSimName){
+  // Accepts variations in field names across your files.
+  const name = (r.name || r.student || r.studentName || "").toString().trim();
+  const score = Number(r.score ?? r.points ?? r.total ?? 0);
+  const date  = (r.date || r.time || r.createdAt || r.timestamp || "").toString().trim();
+  const sim   = (r.simulation || r.simulationName || defaultSimName || "").toString().trim();
+
+  if(!name) return null;
+  return { name, sim, score, date };
+}
+
+// For status: Option A "completed if score exists"
+function statusFor(attempts){
+  if(attempts <= 0) return "Not started";
+  return "Completed";
+}
+function pill(status){
+  if(status === "Completed") return `<span class="pill co">Completed</span>`;
+  if(status === "In progress") return `<span class="pill ip">In progress</span>`;
+  return `<span class="pill ns">Not started</span>`;
+}
+
+function dateKey(d){
+  // Attempts to make comparable dates; falls back to string.
+  const t = Date.parse(d);
+  return isNaN(t) ? 0 : t;
+}
+
+/* ---- Data sources (keys you use) ---- */
+const SOURCES = [
+  { key: "healthResults",         defaultSim: "Health & Social Care" },
+  { key: "businessResults",       defaultSim: "Business" },
+  { key: "satooriDigitalResults", defaultSim: "Digital Skills" },
+  { key: "customResults",         defaultSim: "Custom Simulation" }
+];
+
+function loadAllAttempts(){
+  const attempts = [];
+  for(const src of SOURCES){
+    const list = parseList(src.key);
+    for(const r of list){
+      const n = normalizeResult(r, src.defaultSim);
+      if(n) attempts.push(n);
+    }
+  }
+  return attempts;
+}
+
+/* ---- Build aggregated tracker rows ---- */
+function buildTracker(attempts){
+  // Group by (student, simulation)
+  const map = new Map();
+
+  for(const a of attempts){
+    const key = `${a.name}||${a.sim}`;
+    if(!map.has(key)){
+      map.set(key, {
+        name: a.name,
+        sim: a.sim,
+        attempts: 0,
+        best: -Infinity,
+        lastScore: null,
+        lastDate: "",
+        lastDateSort: 0
+      });
+    }
+    const row = map.get(key);
+    row.attempts += 1;
+    if(a.score > row.best) row.best = a.score;
+
+    const dSort = dateKey(a.date);
+    // Choose the most recent attempt
+    if(dSort >= row.lastDateSort){
+      row.lastDateSort = dSort;
+      row.lastDate = a.date || row.lastDate;
+      row.lastScore = a.score;
+    }
+  }
+
+  // Convert to array
+  const out = Array.from(map.values()).map(r => ({
+    ...r,
+    status: statusFor(r.attempts),
+    best: (r.best === -Infinity ? 0 : r.best)
+  }));
+
+  // Sort: by student then simulation
+  out.sort((a,b)=>{
+    const n = a.name.localeCompare(b.name);
+    if(n !== 0) return n;
+    return a.sim.localeCompare(b.sim);
+  });
+
+  return out;
+}
+
+/* ---- UI: Fill simulation filter ---- */
+function fillSimFilter(trackerRows){
+  const sel = document.getElementById("simFilter");
+  const current = sel.value;
+
+  const sims = Array.from(new Set(trackerRows.map(r=>r.sim))).sort((a,b)=>a.localeCompare(b));
+  sel.innerHTML = `<option value="">All simulations</option>` + sims.map(s=>`<option value="${safe(s)}">${safe(s)}</option>`).join("");
+
+  // keep selection if still exists
+  if(sims.includes(current)) sel.value = current;
+}
+
+/* ---- Render ---- */
+let CACHE = { attempts: [], tracker: [] };
+
+function render(){
+  if(CACHE.attempts.length === 0){
+    CACHE.attempts = loadAllAttempts();
+    CACHE.tracker = buildTracker(CACHE.attempts);
+    fillSimFilter(CACHE.tracker);
+  }
+
+  const studentText = document.getElementById("studentFilter").value.trim().toLowerCase();
+  const sim = document.getElementById("simFilter").value;
+
+  let rows = CACHE.tracker;
+
+  if(studentText){
+    rows = rows.filter(r => r.name.toLowerCase().includes(studentText));
+  }
+  if(sim){
+    rows = rows.filter(r => r.sim === sim);
+  }
+
+  const tbody = document.getElementById("rows");
+  if(rows.length === 0){
+    tbody.innerHTML = `<tr><td colspan="7">No results match your filters yet.</td></tr>`;
+  } else {
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td><b>${safe(r.name)}</b></td>
+        <td>${safe(r.sim)}</td>
+        <td>${pill(r.status)}</td>
+        <td class="mono">${r.attempts}</td>
+        <td class="mono">${safe(r.best)}</td>
+        <td class="mono">${safe(r.lastScore ?? "")}</td>
+        <td>${safe(r.lastDate)}</td>
+      </tr>
+    `).join("");
+  }
+
+  // Summary
+  const totalAttempts = CACHE.attempts.length;
+  const totalPairs = CACHE.tracker.length;
+  document.getElementById("summary").innerHTML =
+    `<small><b>Total attempts saved:</b> ${totalAttempts} &nbsp; | &nbsp; <b>Tracked student+simulation rows:</b> ${totalPairs}</small>`;
+}
+
+/* ---- Export CSV ---- */
+function exportCSV(){
+  if(CACHE.attempts.length === 0){
+    CACHE.attempts = loadAllAttempts();
+    CACHE.tracker = buildTracker(CACHE.attempts);
+  }
+
+  const studentText = document.getElementById("studentFilter").value.trim().toLowerCase();
+  const sim = document.getElementById("simFilter").value;
+
+  let rows = CACHE.tracker;
+  if(studentText) rows = rows.filter(r => r.name.toLowerCase().includes(studentText));
+  if(sim) rows = rows.filter(r => r.sim === sim);
+
+  const header = ["Student","Simulation","Status","Attempts","BestScore","LastScore","LastAttempt"];
+  const lines = [header.join(",")];
+
+  for(const r of rows){
+    const line = [
+      r.name, r.sim, r.status, r.attempts, r.best, (r.lastScore ?? ""), (r.lastDate ?? "")
+    ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(",");
+    lines.push(line);
+  }
+
+  const blob = new Blob([lines.join("\n")], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "satoorilabs_tracker.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* Build cache each time you open; refresh button can rebuild by clearing cache */
+document.querySelector(".blue").addEventListener("click", ()=>{
+  CACHE = { attempts: [], tracker: [] };
+});
+
+/* First render */
+render();
+</script>
+
+</body>
+</html>

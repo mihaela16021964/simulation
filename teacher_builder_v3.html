@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SatooriLabs – Teacher Builder V3</title>
+
+<style>
+body{
+  font-family:Arial, sans-serif;
+  background:#f4f7fb;
+  margin:0;
+  padding:20px;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 0 10px rgba(0,0,0,0.08);
+}
+
+.topbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+
+button{
+  padding:12px 16px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.blue{ background:#2563eb; color:white; }
+.green{ background:#16a34a; color:white; }
+.gray{ background:#e5e7eb; }
+.red{ background:#dc2626; color:white; }
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+
+label{
+  font-weight:bold;
+  display:block;
+  margin-top:10px;
+}
+
+input, textarea, select{
+  width:100%;
+  padding:10px;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  margin-top:6px;
+}
+
+textarea{
+  min-height:90px;
+}
+
+.option-row{
+  display:grid;
+  grid-template-columns:1fr 100px 140px;
+  gap:10px;
+  margin-top:10px;
+}
+
+.preview{
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:16px;
+  background:#f8fafc;
+  min-height:500px;
+}
+
+.stage-badge{
+  display:inline-block;
+  padding:6px 12px;
+  background:#dbeafe;
+  color:#1d4ed8;
+  border-radius:999px;
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+.preview button{
+  width:100%;
+  margin-top:10px;
+  background:#2563eb;
+  color:white;
+}
+
+small{
+  color:#475569;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <h2>SatooriLabs – Teacher Builder V3</h2>
+  <small>Multi-stage page builder prototype. Each stage is one student screen.</small>
+
+  <div class="topbar">
+    <button class="blue" onclick="addStage()">Add Stage</button>
+    <button class="gray" onclick="prevStage()">Previous Stage</button>
+    <button class="gray" onclick="nextStage()">Next Stage</button>
+    <button class="green" onclick="saveCurrentStage()">Save Current Stage</button>
+    <button class="blue" onclick="updatePreview()">Preview Current Stage</button>
+    <button class="red" onclick="deleteStage()">Delete Current Stage</button>
+  </div>
+
+  <div class="grid">
+
+    <div>
+      <div class="stage-badge" id="stageIndicator">Stage 1</div>
+
+      <label>Simulation Title</label>
+      <input id="simulationTitle" placeholder="e.g. Geography – River Features">
+
+      <label>Stage Title</label>
+      <input id="stageTitle" placeholder="e.g. Stage 1 – Identify the feature">
+
+      <label>Scenario Text</label>
+      <textarea id="scenarioText" placeholder="Write the stage scenario..."></textarea>
+
+      <label>Image URL (optional)</label>
+      <input id="imageUrl" placeholder="https://...jpg/png">
+
+      <label>Audio URL (optional)</label>
+      <input id="audioUrl" placeholder="https://...mp3">
+
+      <label>Video URL (optional)</label>
+      <input id="videoUrl" placeholder="https://...mp4 or YouTube link">
+
+      <label>Options</label>
+
+      <div class="option-row">
+        <input id="opt1" placeholder="Option 1 text">
+        <input id="pts1" type="number" placeholder="Points" value="0">
+        <input id="next1" type="number" placeholder="Next stage no.">
+      </div>
+
+      <div class="option-row">
+        <input id="opt2" placeholder="Option 2 text">
+        <input id="pts2" type="number" placeholder="Points" value="0">
+        <input id="next2" type="number" placeholder="Next stage no.">
+      </div>
+
+      <div class="option-row">
+        <input id="opt3" placeholder="Option 3 text">
+        <input id="pts3" type="number" placeholder="Points" value="0">
+        <input id="next3" type="number" placeholder="Next stage no.">
+      </div>
+
+      <div class="option-row">
+        <input id="opt4" placeholder="Option 4 text">
+        <input id="pts4" type="number" placeholder="Points" value="0">
+        <input id="next4" type="number" placeholder="Next stage no.">
+      </div>
+
+      <div style="margin-top:20px;">
+        <button class="green" onclick="saveSimulationToLibrary()">Save Full Simulation to Library</button>
+      </div>
+
+      <div id="message" style="margin-top:12px;font-weight:bold;"></div>
+    </div>
+
+    <div>
+      <h3>Student Preview</h3>
+      <div class="preview" id="previewBox">
+        <p><i>Preview will appear here.</i></p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let currentStage = 0;
+
+let stages = [
+  {
+    stageTitle:"",
+    scenarioText:"",
+    imageUrl:"",
+    audioUrl:"",
+    videoUrl:"",
+    options:[
+      {text:"", points:0, nextStage:""},
+      {text:"", points:0, nextStage:""},
+      {text:"", points:0, nextStage:""},
+      {text:"", points:0, nextStage:""}
+    ]
+  }
+];
+
+function getYouTubeEmbed(url){
+  if(!url) return "";
+  let id = "";
+  if(url.includes("watch?v=")){
+    id = url.split("watch?v=")[1].split("&")[0];
+  } else if(url.includes("youtu.be/")){
+    id = url.split("youtu.be/")[1].split("?")[0];
+  }
+  if(id){
+    return `<iframe width="100%" height="260" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe>`;
+  }
+  return "";
+}
+
+function loadStageIntoForm(){
+  const s = stages[currentStage];
+
+  document.getElementById("stageIndicator").innerText = "Stage " + (currentStage + 1);
+
+  document.getElementById("stageTitle").value = s.stageTitle;
+  document.getElementById("scenarioText").value = s.scenarioText;
+  document.getElementById("imageUrl").value = s.imageUrl;
+  document.getElementById("audioUrl").value = s.audioUrl;
+  document.getElementById("videoUrl").value = s.videoUrl;
+
+  for(let i=0;i<4;i++){
+    document.getElementById("opt"+(i+1)).value = s.options[i].text;
+    document.getElementById("pts"+(i+1)).value = s.options[i].points;
+    document.getElementById("next"+(i+1)).value = s.options[i].nextStage;
+  }
+}
+
+function saveCurrentStage(){
+  stages[currentStage] = {
+    stageTitle: document.getElementById("stageTitle").value,
+    scenarioText: document.getElementById("scenarioText").value,
+    imageUrl: document.getElementById("imageUrl").value,
+    audioUrl: document.getElementById("audioUrl").value,
+    videoUrl: document.getElementById("videoUrl").value,
+    options:[
+      {
+        text: document.getElementById("opt1").value,
+        points: Number(document.getElementById("pts1").value || 0),
+        nextStage: document.getElementById("next1").value
+      },
+      {
+        text: document.getElementById("opt2").value,
+        points: Number(document.getElementById("pts2").value || 0),
+        nextStage: document.getElementById("next2").value
+      },
+      {
+        text: document.getElementById("opt3").value,
+        points: Number(document.getElementById("pts3").value || 0),
+        nextStage: document.getElementById("next3").value
+      },
+      {
+        text: document.getElementById("opt4").value,
+        points: Number(document.getElementById("pts4").value || 0),
+        nextStage: document.getElementById("next4").value
+      }
+    ]
+  };
+
+  document.getElementById("message").innerText = "Stage " + (currentStage + 1) + " saved.";
+}
+
+function addStage(){
+  saveCurrentStage();
+  stages.push({
+    stageTitle:"",
+    scenarioText:"",
+    imageUrl:"",
+    audioUrl:"",
+    videoUrl:"",
+    options:[
+      {text:"", points:0, nextStage:""},
+      {text:"", points:0, nextStage:""},
+      {text:"", points:0, nextStage:""},
+      {text:"", points:0, nextStage:""}
+    ]
+  });
+  currentStage = stages.length - 1;
+  loadStageIntoForm();
+  updatePreview();
+}
+
+function prevStage(){
+  saveCurrentStage();
+  if(currentStage > 0){
+    currentStage--;
+    loadStageIntoForm();
+    updatePreview();
+  }
+}
+
+function nextStage(){
+  saveCurrentStage();
+  if(currentStage < stages.length - 1){
+    currentStage++;
+    loadStageIntoForm();
+    updatePreview();
+  }
+}
+
+function deleteStage(){
+  if(stages.length === 1){
+    alert("You must keep at least one stage.");
+    return;
+  }
+  stages.splice(currentStage,1);
+  if(currentStage >= stages.length){
+    currentStage = stages.length - 1;
+  }
+  loadStageIntoForm();
+  updatePreview();
+}
+
+function updatePreview(){
+  saveCurrentStage();
+
+  const simTitle = document.getElementById("simulationTitle").value || "Simulation Title";
+  const s = stages[currentStage];
+
+  let html = `<h2>${simTitle}</h2>`;
+  html += `<div class="stage-badge">Stage ${currentStage + 1}</div>`;
+  html += `<h3>${s.stageTitle || "Untitled Stage"}</h3>`;
+  html += `<p>${(s.scenarioText || "").replace(/\n/g,"<br>")}</p>`;
+
+  if(s.imageUrl){
+    html += `<img src="${s.imageUrl}" style="max-width:100%;border-radius:10px;margin-top:10px;">`;
+  }
+
+  if(s.audioUrl){
+    html += `<div style="margin-top:10px;"><audio controls src="${s.audioUrl}" style="width:100%;"></audio></div>`;
+  }
+
+  const yt = getYouTubeEmbed(s.videoUrl);
+  if(yt){
+    html += `<div style="margin-top:10px;">${yt}</div>`;
+  } else if(s.videoUrl){
+    html += `<div style="margin-top:10px;"><video controls src="${s.videoUrl}" style="width:100%;border-radius:10px;"></video></div>`;
+  }
+
+  html += `<hr><p><b>Choose:</b></p>`;
+
+  s.options.forEach((opt, index)=>{
+    if(opt.text){
+      html += `<button>Option ${index+1}: ${opt.text}</button>`;
+    }
+  });
+
+  document.getElementById("previewBox").innerHTML = html;
+}
+
+function randomId(length=10){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for(let i=0;i<length;i++){
+    out += chars[Math.floor(Math.random()*chars.length)];
+  }
+  return out;
+}
+
+function saveSimulationToLibrary(){
+  saveCurrentStage();
+
+  const title = document.getElementById("simulationTitle").value.trim();
+
+  if(!title){
+    alert("Please add a simulation title.");
+    return;
+  }
+
+  const simulationObject = {
+    id: randomId(),
+    title: title,
+    createdAt: new Date().toLocaleString(),
+    stages: stages
+  };
+
+  let library = JSON.parse(localStorage.getItem("teacherSimLibraryV3") || "[]");
+  library.push(simulationObject);
+  localStorage.setItem("teacherSimLibraryV3", JSON.stringify(library));
+
+  document.getElementById("message").innerHTML =
+    "Simulation saved to Teacher Library V3.";
+}
+
+loadStageIntoForm();
+updatePreview();
+</script>
+
+</body>
+</html>

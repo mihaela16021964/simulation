@@ -1,142 +1,198 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SatooriLabs</title>
 
 <style>
-
 body{
-font-family: Arial;
-background:#f5f7fb;
-text-align:center;
-padding:40px;
+  font-family: Arial, sans-serif;
+  margin:0;
+  background:#f4f7fb;
+  color:#1f2937;
 }
 
-h1{
-color:#1e3a8a;
-font-size:40px;
+.hero{
+  background:linear-gradient(135deg,#1d4ed8,#2563eb);
+  color:white;
+  text-align:center;
+  padding:70px 20px 60px 20px;
 }
 
-h2{
-margin-top:40px;
-color:#2563eb;
+.hero h1{
+  margin:0;
+  font-size:46px;
 }
 
-p{
-max-width:700px;
-margin:auto;
-font-size:18px;
+.hero p{
+  max-width:850px;
+  margin:18px auto 0 auto;
+  font-size:20px;
+  line-height:1.6;
 }
 
-button{
-padding:14px 26px;
-margin:10px;
-font-size:16px;
-background:#2563eb;
-color:white;
-border:none;
-border-radius:8px;
-cursor:pointer;
+.main{
+  max-width:1100px;
+  margin:0 auto;
+  padding:40px 20px 70px 20px;
 }
 
-button:hover{
-background:#1e40af;
+.intro{
+  background:white;
+  padding:28px;
+  border-radius:14px;
+  box-shadow:0 0 10px rgba(0,0,0,0.06);
+  margin-bottom:30px;
+}
+
+.intro h2{
+  margin-top:0;
+  color:#1d4ed8;
 }
 
 .section{
-margin-top:50px;
+  background:white;
+  padding:28px;
+  border-radius:14px;
+  box-shadow:0 0 10px rgba(0,0,0,0.06);
+  margin-bottom:24px;
 }
 
-footer{
-margin-top:80px;
-color:#777;
+.section h2{
+  margin-top:0;
+  color:#1d4ed8;
 }
 
+.section p{
+  line-height:1.6;
+}
+
+.button-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-top:18px;
+}
+
+.button-grid a{
+  text-decoration:none;
+}
+
+button{
+  padding:14px 20px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:16px;
+  background:#2563eb;
+  color:white;
+  min-width:220px;
+}
+
+button:hover{
+  background:#1d4ed8;
+}
+
+.secondary{
+  background:#16a34a;
+}
+
+.secondary:hover{
+  background:#15803d;
+}
+
+.gray{
+  background:#64748b;
+}
+
+.gray:hover{
+  background:#475569;
+}
+
+.footer{
+  text-align:center;
+  padding:30px 20px 50px 20px;
+  color:#6b7280;
+  font-size:14px;
+}
 </style>
-
 </head>
-
 <body>
 
-<h1>SatooriLabs</h1>
+<div class="hero">
+  <h1>SatooriLabs</h1>
+  <p>
+    Interactive learning platform for teacher-created simulations.
+    A safe environment where students make decisions, explore consequences,
+    and learn through experience.
+  </p>
+</div>
 
-<p>
-Interactive Case Learning Platform.<br>
-A safe environment where students make decisions,
-experience consequences, and learn from them.
-</p>
+<div class="main">
 
-<p>
-Teachers can design their own classroom simulations
-adapted to their students' level and curriculum.
-</p>
+  <div class="intro">
+    <h2>What is SatooriLabs?</h2>
+    <p>
+      SatooriLabs allows teachers to build their own simulations according to
+      the level, subject, and needs of their students. Instead of using rigid,
+      pre-built scenarios, teachers can design interactive learning journeys
+      that support real decision-making, reflection, and engagement.
+    </p>
+  </div>
 
+  <div class="section">
+    <h2>Student Area</h2>
+    <p>
+      Students can access simulations, complete activities, and review their
+      own progress through the Student Library.
+    </p>
 
-<div class="section">
+    <div class="button-grid">
+      <a href="student_login.html"><button>Student Login</button></a>
+      <a href="student_library_v2.html"><button>Student Library</button></a>
+    </div>
+  </div>
 
-<h2>Student Area</h2>
+  <div class="section">
+    <h2>Teacher Area</h2>
+    <p>
+      Teachers can design simulations, manage resources, review progress,
+      generate QR codes, and access tracking tools.
+    </p>
 
-<button onclick="location.href='student_login.html'">
-Student Login
-</button>
+    <div class="button-grid">
+      <a href="teacher_dashboard.html"><button>Teacher Dashboard</button></a>
+      <a href="teacher_builder_v5.html"><button>Simulation Builder V5</button></a>
+      <a href="library_teacher_v5.html"><button>Teacher Library V5</button></a>
+      <a href="tracker.html"><button>Tracker</button></a>
+      <a href="qr_generator.html"><button>QR Code Generator</button></a>
+    </div>
+  </div>
 
-<button onclick="location.href='student_library.html'">
-Student Library
-</button>
+  <div class="section">
+    <h2>Pilot Access</h2>
+    <p>
+      Use the pilot version to test the platform in class and explore the
+      current simulations with students.
+    </p>
+
+    <div class="button-grid">
+      <a href="pilot.html"><button class="secondary">Run Classroom Pilot</button></a>
+      <a href="health_simulation_v2.html"><button class="gray">Health Simulation</button></a>
+      <a href="business_simulation_v2.html"><button class="gray">Business Simulation</button></a>
+      <a href="digital_simulation_v2.html"><button class="gray">Digital Skills Simulation</button></a>
+    </div>
+  </div>
 
 </div>
 
-
-<div class="section">
-
-<h2>Teacher Area</h2>
-  <a href="teacher_builder_v5.html"><button>Simulation Builder V5</button></a>
-<a href="library_teacher_v5.html"><button>Teacher Library V5</button></a>
-<a href="teacher_dashboard.html"><button>Teacher Dashboard</button></a>
-<a href="qr_generator.html"><button>QR Code Generator</button></a>
-
-<button onclick="location.href='teacher_dashboard.html'">
-Teacher Dashboard
-</button>
-
-<button onclick="location.href='teacher_builder_v4.html'">
-Simulation Builder
-</button>
-
-<button onclick="location.href='library_teacher_v4.html'">
-Teacher Library
-</button>
-
-<button onclick="location.href='qr_generator.html'">
-QR Code Generator
-</button>
-
+<div class="footer">
+  © 2026 SatooriLabs. Interactive case and simulation learning platform.
 </div>
-
-
-<div class="section">
-
-<h2>Pilot</h2>
-
-<button onclick="location.href='pilot.html'">
-Run Classroom Pilot
-</button>
-
-</div>
-
-
-<footer>
-
-<p>
-© 2026 SatooriLabs
-</p>
-
-</footer>
 
 </body>
 </html>
-
-
 
 
 

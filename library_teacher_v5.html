@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SatooriLabs – Teacher Library V5</title>
+
+<style>
+body{
+  font-family:Arial, sans-serif;
+  background:#f4f7fb;
+  margin:0;
+  padding:20px;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  background:white;
+  padding:24px;
+  border-radius:12px;
+  box-shadow:0 0 10px rgba(0,0,0,0.08);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+
+th, td{
+  padding:12px;
+  border-bottom:1px solid #e5e7eb;
+  text-align:left;
+  vertical-align:top;
+}
+
+th{
+  background:#2563eb;
+  color:white;
+}
+
+button{
+  padding:10px 14px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+  margin:4px;
+}
+
+.blue{
+  background:#2563eb;
+  color:white;
+}
+
+.green{
+  background:#16a34a;
+  color:white;
+}
+
+.gray{
+  background:#e5e7eb;
+  color:#111827;
+}
+
+.red{
+  background:#dc2626;
+  color:white;
+}
+
+small{
+  color:#475569;
+}
+
+#qrBox{
+  margin-top:24px;
+  padding:20px;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  background:#f8fafc;
+}
+
+#qrcode{
+  margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <h2>SatooriLabs – Teacher Library V5</h2>
+  <small>Saved V5 simulations. Share them with link or QR code.</small>
+
+  <div style="margin-top:16px;">
+    <a href="teacher_builder_v5.html"><button class="blue">Open Teacher Builder V5</button></a>
+    <a href="index.html"><button class="gray">Return to Homepage</button></a>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Subject</th>
+        <th>Title</th>
+        <th>Level</th>
+        <th>Created</th>
+        <th>Stages</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="libraryRows"></tbody>
+  </table>
+
+  <div id="qrBox" style="display:none;">
+    <h3>QR Code for Simulation</h3>
+    <p id="qrLinkText"></p>
+    <div id="qrcode"></div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+function getBaseUrl(){
+  return window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
+}
+
+function loadLibrary(){
+  let library = JSON.parse(localStorage.getItem("teacherSimLibraryV5") || "[]");
+  let rows = "";
+
+  if(library.length === 0){
+    rows = `
+      <tr>
+        <td colspan="6">No simulations saved yet.</td>
+      </tr>
+    `;
+  } else {
+    library.forEach(sim => {
+      rows += `
+        <tr>
+          <td><b>${sim.subject || ""}</b></td>
+          <td>${sim.title || ""}<br><small>${sim.description || ""}</small></td>
+          <td>${sim.level || ""}</td>
+          <td>${sim.createdAt || ""}</td>
+          <td>${sim.stages ? sim.stages.length : 0}</td>
+          <td>
+            <button class="green" onclick="openSimulation('${sim.id}')">Open</button>
+            <button class="blue" onclick="copyLink('${sim.id}')">Copy Link</button>
+            <button class="blue" onclick="generateQR('${sim.id}')">Generate QR</button>
+            <button class="red" onclick="deleteSimulation('${sim.id}')">Delete</button>
+          </td>
+        </tr>
+      `;
+    });
+  }
+
+  document.getElementById("libraryRows").innerHTML = rows;
+}
+
+function buildLink(simId){
+  return getBaseUrl() + "play_v5.html?id=" + simId;
+}
+
+function openSimulation(simId){
+  window.open(buildLink(simId), "_blank");
+}
+
+function copyLink(simId){
+  const link = buildLink(simId);
+
+  navigator.clipboard.writeText(link)
+    .then(() => {
+      alert("Link copied:\n" + link);
+    })
+    .catch(() => {
+      prompt("Copy this link manually:", link);
+    });
+}
+
+function generateQR(simId){
+  const link = buildLink(simId);
+
+  document.getElementById("qrBox").style.display = "block";
+  document.getElementById("qrLinkText").innerHTML = "<small>" + link + "</small>";
+
+  const qrContainer = document.getElementById("qrcode");
+  qrContainer.innerHTML = "";
+
+  new QRCode(qrContainer, {
+    text: link,
+    width: 220,
+    height: 220
+  });
+}
+
+function deleteSimulation(simId){
+  if(!confirm("Delete this simulation?")){
+    return;
+  }
+
+  let library = JSON.parse(localStorage.getItem("teacherSimLibraryV5") || "[]");
+  library = library.filter(sim => sim.id !== simId);
+  localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
+
+  document.getElementById("qrBox").style.display = "none";
+  loadLibrary();
+}
+
+loadLibrary();
+</script>
+
+</body>
+</html>

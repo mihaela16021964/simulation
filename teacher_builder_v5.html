@@ -325,7 +325,7 @@ small{
 
 <script>
 let currentStage = 0;
-
+let editingSimulationId = null;
 let simulationMeta = {
   subject: "",
   title: "",
@@ -645,6 +645,63 @@ function saveSimulationToLibrary(){
     return;
   }
 
+  let library = JSON.parse(localStorage.getItem("teacherSimLibraryV5") || "[]");
+
+  // 🔵 UPDATE EXISTING
+  if(editingSimulationId){
+
+    let index = library.findIndex(sim => sim.id === editingSimulationId);
+
+    if(index !== -1){
+      library[index] = {
+        ...library[index],
+        subject: simulationMeta.subject,
+        title: simulationMeta.title,
+        description: simulationMeta.description,
+        level: simulationMeta.level,
+        teacherNotes: simulationMeta.teacherNotes,
+        stages: stages,
+        updatedAt: new Date().toLocaleString()
+      };
+
+      localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
+
+      document.getElementById("message").innerText = "Simulation updated.";
+      return;
+    }
+  }
+
+  // 🟢 CREATE NEW
+  const newSimulation = {
+    id: randomId(),
+    subject: simulationMeta.subject,
+    title: simulationMeta.title,
+    description: simulationMeta.description,
+    level: simulationMeta.level,
+    teacherNotes: simulationMeta.teacherNotes,
+    createdAt: new Date().toLocaleString(),
+    stages: stages
+  };
+
+  library.push(newSimulation);
+  localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
+
+  editingSimulationId = newSimulation.id;
+
+  document.getElementById("message").innerText = "Simulation saved.";
+}
+  saveCurrentStage();
+
+  if(!simulationMeta.subject.trim()){
+    alert("Please add a subject.");
+    return;
+  }
+
+  if(!simulationMeta.title.trim()){
+    alert("Please add a simulation title.");
+    return;
+  }
+
   const simulationObject = {
     id: randomId(),
     subject: simulationMeta.subject,
@@ -665,6 +722,9 @@ function saveSimulationToLibrary(){
 
 loadStageIntoForm();
 updatePreview();
+  function editSimulation(simId){
+  window.location.href = "teacher_builder_v5.html?edit=" + simId;
+}
 </script>
 
 </body>

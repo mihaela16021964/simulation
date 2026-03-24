@@ -84,6 +84,18 @@ small{
 #qrcode{
   margin-top:10px;
 }
+
+.preview-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:12px;
+}
+
+.preview-table td,
+.preview-table th{
+  border:1px solid #cbd5e1;
+  padding:8px;
+}
 </style>
 </head>
 <body>
@@ -129,10 +141,6 @@ function getBaseUrl(){
 
 function safeText(str){
   return (str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-function safeAttr(str){
-  return (str || "").replace(/"/g, "&quot;");
 }
 
 function getYouTubeEmbed(url){
@@ -215,6 +223,7 @@ function loadLibrary(){
             <button class="green" onclick="openSimulation('${sim.id}')">Open</button>
             <button class="blue" onclick="copyLink('${sim.id}')">Copy Link</button>
             <button class="blue" onclick="generateQR('${sim.id}')">Generate QR</button>
+            <button class="blue" onclick="editSimulation('${sim.id}')">Edit</button>
             <button class="gray" onclick="exportSimulation('${sim.id}')">Export HTML</button>
             <button class="red" onclick="deleteSimulation('${sim.id}')">Delete</button>
           </td>
@@ -262,6 +271,10 @@ function generateQR(simId){
   });
 }
 
+function editSimulation(simId){
+  window.location.href = "teacher_builder_v5.html?edit=" + simId;
+}
+
 function deleteSimulation(simId){
   if(!confirm("Delete this simulation?")){
     return;
@@ -292,7 +305,6 @@ body{
   margin:0;
   padding:20px;
 }
-
 .container{
   max-width:1000px;
   margin:auto;
@@ -301,7 +313,6 @@ body{
   border-radius:12px;
   box-shadow:0 0 10px rgba(0,0,0,0.08);
 }
-
 button{
   width:100%;
   padding:12px;
@@ -313,27 +324,15 @@ button{
   background:#2563eb;
   color:white;
 }
-
 button:hover{
   background:#1d4ed8;
 }
-
-.green{
-  background:#16a34a;
-}
-
-.green:hover{
-  background:#15803d;
-}
-
 .gray{
   background:#64748b;
 }
-
 .gray:hover{
   background:#475569;
 }
-
 .badge{
   display:inline-block;
   padding:6px 12px;
@@ -343,23 +342,19 @@ button:hover{
   font-size:13px;
   margin-bottom:10px;
 }
-
 #result{
   margin-top:20px;
   font-weight:bold;
   font-size:18px;
 }
-
 small{
   color:#475569;
 }
-
 .preview-table{
   width:100%;
   border-collapse:collapse;
   margin-top:12px;
 }
-
 .preview-table td,
 .preview-table th{
   border:1px solid #cbd5e1;
@@ -373,9 +368,7 @@ small{
   <div id="content"></div>
   <div id="options"></div>
   <div id="result"></div>
-
   <br>
-
   <button class="gray" onclick="restartSimulation()">Restart Simulation</button>
 </div>
 
@@ -440,7 +433,6 @@ function renderTable(table){
 let simulation = ${simulationJSON};
 let currentStage = 0;
 let score = 0;
-let studentName = "Student";
 
 function showStage(){
   if(currentStage >= simulation.stages.length){

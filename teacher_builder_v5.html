@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,7 +74,7 @@ label{
   margin-top:12px;
 }
 
-input, textarea, select{
+input, textarea{
   width:100%;
   box-sizing:border-box;
   padding:10px;
@@ -172,7 +173,6 @@ small{
   <h2>SatooriLabs – Teacher Builder V5</h2>
   <small>Phase A: structured stage-by-stage simulation composer.</small>
 
-  <!-- GLOBAL SIMULATION PANEL -->
   <div class="top-section">
     <h3>Simulation Overview</h3>
     <div class="top-grid">
@@ -209,16 +209,13 @@ small{
     </div>
   </div>
 
-  <!-- MAIN LAYOUT -->
   <div class="main-grid">
 
-    <!-- STAGE LIST -->
     <div class="panel stage-list">
       <h3>Stages</h3>
       <div id="stageButtons"></div>
     </div>
 
-    <!-- STAGE EDITOR -->
     <div class="panel">
       <div class="badge" id="stageIndicator">Stage 1</div>
 
@@ -312,7 +309,6 @@ small{
       <div id="message"></div>
     </div>
 
-    <!-- PREVIEW -->
     <div class="panel preview">
       <h3>Student Preview</h3>
       <div id="previewBox">
@@ -326,6 +322,12 @@ small{
 <script>
 let currentStage = 0;
 let editingSimulationId = null;
+
+function getParam(name){
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
 let simulationMeta = {
   subject: "",
   title: "",
@@ -632,6 +634,29 @@ function randomId(length=10){
   return out;
 }
 
+function loadSimulationForEdit(){
+  let simId = getParam("edit");
+  if(!simId) return;
+
+  let library = JSON.parse(localStorage.getItem("teacherSimLibraryV5") || "[]");
+  let sim = library.find(s => s.id === simId);
+
+  if(!sim) return;
+
+  editingSimulationId = sim.id;
+
+  simulationMeta.subject = sim.subject || "";
+  simulationMeta.title = sim.title || "";
+  simulationMeta.description = sim.description || "";
+  simulationMeta.level = sim.level || "";
+  simulationMeta.teacherNotes = sim.teacherNotes || "";
+
+  stages = sim.stages || [createEmptyStage()];
+  currentStage = 0;
+
+  document.getElementById("message").innerText = "Editing existing simulation.";
+}
+
 function saveSimulationToLibrary(){
   saveCurrentStage();
 
@@ -647,9 +672,7 @@ function saveSimulationToLibrary(){
 
   let library = JSON.parse(localStorage.getItem("teacherSimLibraryV5") || "[]");
 
-  // 🔵 UPDATE EXISTING
   if(editingSimulationId){
-
     let index = library.findIndex(sim => sim.id === editingSimulationId);
 
     if(index !== -1){
@@ -665,13 +688,11 @@ function saveSimulationToLibrary(){
       };
 
       localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
-
       document.getElementById("message").innerText = "Simulation updated.";
       return;
     }
   }
 
-  // 🟢 CREATE NEW
   const newSimulation = {
     id: randomId(),
     subject: simulationMeta.subject,
@@ -687,44 +708,12 @@ function saveSimulationToLibrary(){
   localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
 
   editingSimulationId = newSimulation.id;
-
   document.getElementById("message").innerText = "Simulation saved.";
 }
-  saveCurrentStage();
 
-  if(!simulationMeta.subject.trim()){
-    alert("Please add a subject.");
-    return;
-  }
-
-  if(!simulationMeta.title.trim()){
-    alert("Please add a simulation title.");
-    return;
-  }
-
-  const simulationObject = {
-    id: randomId(),
-    subject: simulationMeta.subject,
-    title: simulationMeta.title,
-    description: simulationMeta.description,
-    level: simulationMeta.level,
-    teacherNotes: simulationMeta.teacherNotes,
-    createdAt: new Date().toLocaleString(),
-    stages: stages
-  };
-
-  let library = JSON.parse(localStorage.getItem("teacherSimLibraryV5") || "[]");
-  library.push(simulationObject);
-  localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
-
-  document.getElementById("message").innerHTML = "Simulation saved to Teacher Library V5.";
-}
-
+loadSimulationForEdit();
 loadStageIntoForm();
 updatePreview();
-  function editSimulation(simId){
-  window.location.href = "teacher_builder_v5.html?edit=" + simId;
-}
 </script>
 
 </body>

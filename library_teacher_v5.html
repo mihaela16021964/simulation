@@ -23,7 +23,8 @@ function loadLibrary(){
           <b>${sim.title || ""}</b><br>
           Subject: ${sim.subject || ""}<br><br>
           <button onclick="openSim('${sim.id}')">Open</button>
-          <button onclick="editSim('${sim.id}')">Edit</button>
+<button onclick="editSim('${sim.id}')">Edit</button>
+<button onclick="exportSim('${sim.id}')">Export HTML</button>
         </div>
       `;
     });

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sweet Dreams Startup Simulation</title>
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f4f7fb;
+  margin:0;
+  padding:20px;
+}
+.container{
+  max-width:1000px;
+  margin:auto;
+  background:white;
+  padding:24px;
+  border-radius:12px;
+  box-shadow:0 0 10px rgba(0,0,0,0.08);
+}
+button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:16px;
+  background:#2563eb;
+  color:white;
+}
+button:hover{
+  background:#1d4ed8;
+}
+.gray{
+  background:#64748b;
+}
+.gray:hover{
+  background:#475569;
+}
+.badge{
+  display:inline-block;
+  padding:6px 12px;
+  background:#dbeafe;
+  color:#1d4ed8;
+  border-radius:999px;
+  font-size:13px;
+  margin-bottom:10px;
+}
+.preview-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:12px;
+}
+.preview-table td,
+.preview-table th{
+  border:1px solid #cbd5e1;
+  padding:8px;
+}
+#result{
+  margin-top:20px;
+  font-weight:bold;
+  font-size:18px;
+}
+small{
+  color:#475569;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div id="content"></div>
+  <div id="options"></div>
+  <div id="result"></div>
+  <button class="gray" onclick="restartSimulation()">Restart Simulation</button>
+</div>
+
+<script>
+function renderTable(table){
+  if(!table) return "";
+
+  const hasTitle = table.title && table.title.trim() !== "";
+  const hasHeaders = table.headers && table.headers.some(h => h && h.trim() !== "");
+  const hasRows = table.rows && table.rows.flat().some(c => c && c.trim() !== "");
+
+  if(!hasTitle && !hasHeaders && !hasRows){
+    return "";
+  }
+
+  let html = "";
+
+  if(hasTitle){
+    html += "<h4>" + (table.title || "") + "</h4>";
+  }
+
+  html += '<table class="preview-table">';
+
+  if(hasHeaders){
+    html += "<tr>";
+    table.headers.forEach(h=>{
+      html += "<th>" + (h || "") + "</th>";
+    });
+    html += "</tr>";
+  }
+
+  if(table.rows){
+    table.rows.forEach(row=>{
+      if(row.some(c => c && c.trim() !== "")){
+        html += "<tr>";
+        row.forEach(c=>{
+          html += "<td>" + (c || "") + "</td>";
+        });
+        html += "</tr>";
+      }
+    });
+  }
+
+  html += "</table>";
+  return html;
+}
+
+let simulation = {
+  id: "D3N3TR7M4K",
+  subject: "Entrepreneurship",
+  title: "A Start Up Coffee Shop – Sweet Dreams",
+  description: "You are the founder of Sweet Dreams, a coffee shop startup with a unique twist: you specialize in gourmet coffee paired with high-end, house-made pastries and desserts. Your mission is to navigate the treacherous waters of entrepreneurship from initial spark to potential franchise.",
+  level: "",
+  teacherNotes: "",
+  createdAt: "25/03/2026 22:13:02",
+  updatedAt: "25/03/2026 22:13:05",
+  stages: [
+    {
+      stageTitle: "The Genesis and Market Validation",
+      scenarioText: "You have a passion for coffee and baking and a unique concept for a shop that feels like a cozy, upscale retreat. You have a 50,000 budget.",
+      imageUrl: "",
+      audioUrl: "",
+      videoUrl: "",
+      table: { title: "", headers: ["","",""], rows: [["","",""],["","",""]] },
+      options: [
+        { text: "Rent a small, affordable kiosk in a mall to test your core products (coffee and pastries).", points: 30, nextStage: "", label: "" },
+        { text: "Partner with a local, established bakery to supply your pastries while you focus on sourcing high-end coffee beans and building a small, curated menu from a pop-up location for 6 months.", points: 10, nextStage: "", label: "" },
+        { text: "Develop a business plan, secure a 150,000 loan and sign for a 5-year lease on a prime, high-foot traffic location in the downtown arts district.", points: 30, nextStage: "", label: "" },
+        { text: "Invest 20,000 of your budget into creating a high-end mobile coffee cart. Quit your full-time job to operate it at festivals, corporate events, and farmers' markets for a year. Use this as a roving market research and brand-building tool.", points: 40, nextStage: "", label: "" }
+      ]
+    },
+    {
+      stageTitle: "Location, Location, Location",
+      scenarioText: "Your initial validation stage was a success. You have a small but loyal following and a clearer concept. You have 100,000 in capital (savings plus a small investment from a friend). Now you need to secure a permanent home for Sweet Dreams. Do you:",
+      imageUrl: "",
+      audioUrl: "",
+      videoUrl: "",
+      table: { title: "", headers: ["","",""], rows: [["","",""],["","",""]] },
+      options: [
+        { text: "Take over a recently closed, fully equipped coffee shop in a suburban strip mall. The location is turnkey. You just need to rebrand and tweak the menu.", points: 10, nextStage: "", label: "" },
+        { text: "Lease a small, empty storefront in a rapidly gentrifying neighbourhood. The rent is low, but you need to invest in plumbing, electrical work and aesthetic renovations to match the Sweet Dreams vibe.", points: 20, nextStage: "", label: "" },
+        { text: "Secure a premium location on the ground floor of a new apartment and office building downtown. The rent is triple your budget, but the landlord offers a turnkey build-out and 6 months of free rent. The location promises built-in foot traffic.", points: 30, nextStage: "", label: "" },
+        { text: "Form a partnership with a local real estate developer. You can get a prime location in a mixed-use development in exchange for a 15% equity stake in your company and a higher-than-market rent after a one-year ramp-up period.", points: 40, nextStage: "", label: "" }
+      ]
+    },
+    {
+      stageTitle: "Building Your Team and Culture",
+      scenarioText: "The build-out of your chosen location is almost complete. You need to hire your team. Your goal is to create a culture that reflects the Sweet Dreams ethos: warm, artistic and high-energy. You have enough budget for 4–5 full-time staff. Do you:",
+      imageUrl: "",
+      audioUrl: "",
+      videoUrl: "",
+      table: { title: "", headers: ["","",""], rows: [["","",""],["","",""]] },
+      options: [
+        { text: "Hire experienced baristas and a manager from established competitors. Pay them slightly above the market rate to ensure they are reliable and require minimal training.", points: 20, nextStage: "", label: "" },
+        { text: "Hire based on personality and passion for the Sweet Dreams brand. Recruit from local art schools and culinary programmes, emphasizing creative freedom and a flexible, collaborative work environment.", points: 30, nextStage: "", label: "" },
+        { text: "Hire an experienced general manager with a profit-sharing agreement. Give them full authority to recruit and build the rest of the team. You are the visionary owner.", points: 30, nextStage: "", label: "" },
+        { text: "Implement a co-op model. Hire your initial team as 'founding members', offering them a minimum wage salary but a significant percentage of monthly profits to be distributed equally among them. They have a say in all operational decisions.", points: 40, nextStage: "", label: "" }
+      ]
+    },
+    {
+      stageTitle: "Operations and the Supply Chain",
+      scenarioText: "Sweet Dreams has been open for 3 months. Sales are decent, but your profit margins are lower than projected. Your pastry chef is complaining about the quality of the flour and your espresso machine keeps breaking down. You need to streamline operations. Do you:",
+      imageUrl: "",
+      audioUrl: "",
+      videoUrl: "",
+      table: { title: "", headers: ["","",""], rows: [["","",""],["","",""]] },
+      options: [
+        { text: "Renegotiate contracts with your existing suppliers for better pricing based on your 3-month volume. Hire a local equipment repair company on a monthly retainer for preventative maintenance on your machines.", points: 10, nextStage: "", label: "" },
+        { text: "Switch to a national food service distributor for all dry goods and non-perishables to get lower prices. For pastries, switch to a high-quality frozen dough supplier to reduce labour costs and waste.", points: 30, nextStage: "", label: "" },
+        { text: "Identify and build direct relationships with local specialty suppliers (a local roastery, a regional dairy, an organic flour mill). Pay a premium for their products but market this heavily as a hyper-local supply chain to justify higher prices and build brand loyalty.", points: 30, nextStage: "", label: "" },
+        { text: "Invest 40,000 in a top-of-the-line commercial espresso machine and in-house milling equipment. Partner with a fair-trade cooperative, importing green beans and roasting them yourself in the back of the shop.", points: 40, nextStage: "", label: "" }
+      ]
+    },
+    {
+      stageTitle: "Growth, Marketing and Branding",
+      scenarioText: "After a year, Sweet Dreams has a strong local following. You are profitable, but growth has plateaued. A new trendy coffee chain is opening 2 blocks away. You need to solidify your brand and expand your customer base. Do you:",
+      imageUrl: "",
+      audioUrl: "",
+      videoUrl: "",
+      table: { title: "", headers: ["","",""], rows: [["","",""],["","",""]] },
+      options: [
+        { text: "Launch a loyalty card programme and a social media campaign focusing on high-quality photos of your products. Offer a weekly happy hour discount.", points: 10, nextStage: "", label: "" },
+        { text: "Develop a branded mobile app for ordering and payments, integrated with a digital loyalty programme. Start a secret menu item that changes monthly, creating hype and repeat visits from customers.", points: 20, nextStage: "", label: "" },
+        { text: "Rebrand Sweet Dreams as an evening destination. Extend hours, obtain a beer and wine license and launch Sweet Dreams After Dark, featuring desserts, cocktails, live acoustic music and a refined pastry menu.", points: 30, nextStage: "", label: "" },
+        { text: "Launch an aggressive anti-chain marketing campaign. Create a co-op marketing fund with other local independent businesses to promote an authentic neighbourhood experience. Invest heavily in a guerilla marketing campaign targeting the new chain's shortcomings.", points: 0, nextStage: "", label: "" }
+      ]
+    },
+    {
+      stageTitle: "Scaling and Vision",
+      scenarioText: "Two years in, Sweet Dreams is a beloved local institution. You have a second location in a nearby neighbourhood that is also performing well. You are approached by a regional investment group with an offer to help you scale to 10 locations in 3 years. You must decide the future of your company. Do you:",
+      imageUrl: "",
+      audioUrl: "",
+      videoUrl: "",
+      table: { title: "", headers: ["","",""], rows: [["","",""],["","",""]] },
+      options: [
+        { text: "Decline external investment. Focus on perfecting your 2 existing locations, ensuring they remain profitable and loved. Plan to open a third location in a few years using cash flow, growing slowly and organically.", points: 10, nextStage: "", label: "" },
+        { text: "Accept a smaller investment from the group to open one more location in a nearby city. Use this as a test case for a semi-managed expansion where you retain creative control but use their resources for real estate and operations support.", points: 20, nextStage: "", label: "" },
+        { text: "Accept the full investment and aggressive growth plan. Bring in an experienced CEO to manage operations while you transition to a Chief Creative Officer role, focusing on product development and brand vision for the expansion.", points: 30, nextStage: "", label: "" },
+        { text: "Reject the investment group and launch a Sweet Dreams franchise model. Create a comprehensive franchise system and begin selling franchises to passionate, pre-vetted local entrepreneurs, offering them lower fees in exchange for strict adherence to your original vision and quality standards.", points: 40, nextStage: "", label: "" }
+      ]
+    }
+  ]
+};
+
+let currentStage = 0;
+let score = 0;
+
+function showStage(){
+  if(currentStage >= simulation.stages.length){
+    finishSimulation();
+    return;
+  }
+
+  const stage = simulation.stages[currentStage];
+
+  let html = "<h2>" + (simulation.subject || "") + "</h2>";
+  html += "<h3>" + (simulation.title || "") + "</h3>";
+  html += '<div class="badge">Stage ' + (currentStage + 1) + "</div>";
+  html += "<h3>" + (stage.stageTitle || "Untitled Stage") + "</h3>";
+
+  if(simulation.description){
+    html += "<p><b>Description:</b> " + simulation.description + "</p>";
+  }
+
+  if(simulation.level){
+    html += "<p><b>Level:</b> " + simulation.level + "</p>";
+  }
+
+  html += "<p>" + (stage.scenarioText || "").replace(/\n/g,"<br>") + "</p>";
+
+  if(stage.imageUrl){
+    html += '<img src="' + stage.imageUrl + '" style="max-width:100%;border-radius:10px;margin-top:10px;">';
+  }
+
+  if(stage.audioUrl){
+    html += '<div style="margin-top:10px;"><audio controls src="' + stage.audioUrl + '" style="width:100%;"></audio></div>';
+  }
+
+  if(stage.videoUrl){
+    html += '<div style="margin-top:10px;"><video controls src="' + stage.videoUrl + '" style="width:100%;border-radius:10px;"></video></div>';
+  }
+
+  html += renderTable(stage.table);
+
+  document.getElementById("content").innerHTML = html;
+
+  let buttons = "";
+  stage.options.forEach((opt, index) => {
+    if(opt.text && opt.text.trim() !== ""){
+      const label = opt.label ? "<b>" + opt.label + "</b><br>" : "";
+      buttons += '<button onclick="chooseOption(' + index + ')">' + label + opt.text + "</button>";
+    }
+  });
+
+  document.getElementById("options").innerHTML = buttons;
+  document.getElementById("result").innerHTML = "";
+}
+
+function chooseOption(index){
+  const stage = simulation.stages[currentStage];
+  const selected = stage.options[index];
+
+  score += Number(selected.points || 0);
+
+  let next = selected.nextStage;
+
+  if(next === "" || next === null || next === undefined){
+    currentStage++;
+  } else {
+    next = Number(next);
+    if(isNaN(next) || next < 1 || next > simulation.stages.length){
+      currentStage++;
+    } else {
+      currentStage = next - 1;
+    }
+  }
+
+  showStage();
+}
+
+function finishSimulation(){
+  let feedback = "";
+  let maxScore = simulation.stages.length * 40;
+  let percentage = Math.round((score / maxScore) * 100);
+
+  if(percentage <= 40){
+    feedback = "Low progress. More study and strategic reflection are needed.";
+  } else if(percentage <= 60){
+    feedback = "Shallow progress. Some good instincts, but the strategy needs more depth.";
+  } else if(percentage <= 80){
+    feedback = "Good progress. You made several strong entrepreneurial decisions.";
+  } else if(percentage < 100){
+    feedback = "Very good progress. Your decisions show strong understanding and strategic thinking.";
+  } else {
+    feedback = "Excellent. Your decisions demonstrate outstanding entrepreneurial judgement.";
+  }
+
+  document.getElementById("content").innerHTML =
+    "<h2>" + (simulation.subject || "") + "</h2>" +
+    "<h3>" + (simulation.title || "") + "</h3>" +
+    "<h3>Simulation Complete</h3>";
+
+  document.getElementById("options").innerHTML = "";
+  document.getElementById("result").innerHTML =
+    "Final score: " + score + " / " + maxScore +
+    "<br>Percentage: " + percentage + "%" +
+    "<br><br>" + feedback;
+}
+
+function restartSimulation(){
+  currentStage = 0;
+  score = 0;
+  showStage();
+}
+
+showStage();
+</script>
+
+</body>
+</html>

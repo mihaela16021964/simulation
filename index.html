@@ -157,8 +157,9 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-  window.saveSimulation = async function () {
-  try {
+ window.saveSimulation = async function () {
+  console.log("Clicked!");
+};
     const docRef = await addDoc(collection(db, "simulations"), {
       title: "New Simulation",
       subject: "Business",

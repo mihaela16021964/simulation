@@ -157,6 +157,19 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+  window.saveSimulation = async function () {
+  try {
+    const docRef = await addDoc(collection(db, "simulations"), {
+      title: "New Simulation",
+      subject: "Business",
+      createdAt: new Date()
+    });
+
+    console.log("Simulation saved:", docRef.id);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
 
 console.log("Firebase connected ✅");
 </script>

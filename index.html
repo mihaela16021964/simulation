@@ -143,36 +143,35 @@ button{
   © SatooriLabs – Interactive Case Studies Platform
 </div>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDotQaJXVcKgFRtUfOlHB1FT5Xa3iFRIyw",
-  authDomain: "satoori-simulations.firebaseapp.com",
-  projectId: "satoori-simulations",
-  storageBucket: "satoori-simulations.firebasestorage.app",
-  messagingSenderId: "62316008106",
-  appId: "1:62316008106:web:352b1c1b45d6a60ae476d3"
-};
+  const firebaseConfig = {
+    apiKey: "PASTE_YOUR_API_KEY_HERE",
+    authDomain: "satoori-simulations.firebaseapp.com",
+    projectId: "satoori-simulations",
+    storageBucket: "satoori-simulations.appspot.com",
+    messagingSenderId: "62316008106",
+    appId: "1:62316008106:web:352b1c1b45d6a60ae476d3"
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
- window.saveSimulation = async function () {
-  console.log("Clicked!");
-};
-    const docRef = await addDoc(collection(db, "simulations"), {
-      title: "New Simulation",
-      subject: "Business",
-      createdAt: new Date()
-    });
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    console.log("Simulation saved:", docRef.id);
-  } catch (error) {
-    console.error("Error:", error);
-  }
-};
+  window.saveSimulation = async function () {
+    console.log("Clicked!");
 
-console.log("Firebase connected ✅");
+    try {
+      const docRef = await addDoc(collection(db, "simulations"), {
+        title: "Test Simulation",
+        createdAt: new Date()
+      });
+
+      console.log("✅ Saved with ID:", docRef.id);
+    } catch (e) {
+      console.error("❌ Error:", e);
+    }
+  };
 </script>
 </body>
 </html>

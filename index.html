@@ -142,38 +142,32 @@ button{
 <div class="footer">
   © SatooriLabs – Interactive Case Studies Platform
 </div>
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+const firebaseConfig = {
+  apiKey: "AIzaSyDotQaJXVcKgFRtUfOlHB1FT5Xa3iFRIyw",
+  authDomain: "satoori-simulations.firebaseapp.com",
+  projectId: "satoori-simulations",
+  storageBucket: "satoori-simulations.firebasestorage.app",
+  messagingSenderId: "62316008106",
+  appId: "1:62316008106:web:352b1c1b45d6a60ae476d3"
+};
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
-    authDomain: "satoori-simulations.firebaseapp.com",
-    projectId: "satoori-simulations",
-    storageBucket: "satoori-simulations.firebasestorage.app",
-    messagingSenderId: "62316008106",
-    appId: "1:62316008106:web:352b1c1b45d6a60ae476d3",
-    measurementId: "G-37ZG6197YC"
-  };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-async function loadSimulations() {
-  const querySnapshot = await getDocs(collection(db, "simulations"));
-  
-  querySnapshot.forEach((doc) => {
-    console.log(doc.data());
-  });
+// 🔥 THIS WILL SAVE DATA IMMEDIATELY
+async function testSave() {
+  try {
+    const docRef = await addDoc(collection(db, "simulations"), {
+      title: "FIRST REAL SAVE",
+      subject: "Business"
+    });
+    console.log("SUCCESS:", docRef.id);
+  } catch (error) {
+    console.error("ERROR:", error);
+  }
 }
 
-loadSimulations();
+testSave();
 </script>
 </body>
 </html>

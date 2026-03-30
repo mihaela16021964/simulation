@@ -163,6 +163,17 @@ import { getFirestore, collection, getDocs } from "https://www.gstatic.com/fireb
 
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+async function loadSimulations() {
+  const querySnapshot = await getDocs(collection(db, "simulations"));
+  
+  querySnapshot.forEach((doc) => {
+    console.log(doc.data());
+  });
+}
+
+loadSimulations();
   const analytics = getAnalytics(app);
 </script>
 </body>

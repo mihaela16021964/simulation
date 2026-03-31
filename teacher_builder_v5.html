@@ -472,15 +472,31 @@ function saveCurrentStage(){
       ]
     },
     options:[
-      {
-        text: document.getElementById("opt1").value,
-        points: Number(document.getElementById("pts1").value || 0),
-        nextStage: document.getElementById("next1").value,
-        label: document.getElementById("label1").value
-      },
-      <label>Feedback (optional)</label>
-<textarea placeholder="Explain why this decision is good or not..."></textarea>
-      {
+  {
+    text: document.getElementById("opt1").value,
+    points: Number(document.getElementById("pts1").value || 0),
+    nextStage: document.getElementById("next1").value,
+    label: document.getElementById("label1").value
+  },
+  {
+    text: document.getElementById("opt2").value,
+    points: Number(document.getElementById("pts2").value || 0),
+    nextStage: document.getElementById("next2").value,
+    label: document.getElementById("label2").value
+  },
+  {
+    text: document.getElementById("opt3").value,
+    points: Number(document.getElementById("pts3").value || 0),
+    nextStage: document.getElementById("next3").value,
+    label: document.getElementById("label3").value
+  },
+  {
+    text: document.getElementById("opt4").value,
+    points: Number(document.getElementById("pts4").value || 0),
+    nextStage: document.getElementById("next4").value,
+    label: document.getElementById("label4").value
+  }
+]
         text: document.getElementById("opt2").value,
         points: Number(document.getElementById("pts2").value || 0),
         nextStage: document.getElementById("next2").value,
@@ -746,86 +762,6 @@ window.saveSimulationToLibrary = async function () {
   }
 };
 </script>
-<script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, addDoc } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-  let stages = [];
-let currentStage = 0;
-  window.addStage = function () {
-  const newStage = {
-    title: "",
-    scenario: "",
-    options: []
-  };
-
-  stages.push(newStage);
-  currentStage = stages.length - 1;
-
-  alert("Stage added! Total stages: " + stages.length);
-};
-  window.saveCurrentStage = function () {
-  if (stages.length === 0) {
-    alert("Add a stage first!");
-    return;
-  }
-
-  stages[currentStage] = {
-    title: document.getElementById("stageTitle").value,
-    scenario: document.getElementById("scenarioText").value
-  };
-
-  console.log("Saved stage:", stages[currentStage]);
-  alert("Stage saved!");
-};
-
-// 🔑 Your Firebase config (copy from index.html)
-const firebaseConfig = {
-  apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
-  authDomain: "satoori-simulations.firebaseapp.com",
-  projectId: "satoori-simulations",
-  storageBucket: "satoori-simulations.firebasestorage.app",
-  messagingSenderId: "62316008106",
-  appId: "1:62316008106:web:68a421970d857348e476d3",
-  measurementId: "G-8ZMB1QNHG7"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// ✅ SAVE BUTTON FUNCTION
-window.saveSimulationToLibrary = async function () {
-  console.log("Saving full simulation...");
-
-  const title = document.getElementById("simulationTitle").value;
-  const subject = document.getElementById("simulationSubject").value;
-
-  try {
-  const data = {
-  meta: {
-    title: document.getElementById("simulationTitle").value,
-    subject: document.getElementById("simulationSubject").value,
-    level: document.getElementById("simulationLevel").value
-  },
-
-  content: {
-    description: document.getElementById("simulationDescription").value,
-    teacherNotes: document.getElementById("teacherNotes").value
-  },
-
-  stages: stages, // 🔥 THIS IS THE KEY LINE
-
-  createdAt: new Date()
-};
-
-    console.log("✅ Saved with ID:", docRef.id);
-    alert("Simulation saved!");
-  } catch (e) {
-    console.error("❌ Error:", e);
-  }
-};
-
-</script>
 </body>
 </html>

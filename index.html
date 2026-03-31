@@ -163,7 +163,12 @@ button{
 
     try {
       const docRef = await addDoc(collection(db, "simulations"), {
-        title: "Test Simulation",
+        const title = prompt("Enter simulation title:");
+
+const docRef = await addDoc(collection(db, "simulations"), {
+  title: title,
+  createdAt: new Date()
+});
         createdAt: new Date()
       });
 

@@ -802,7 +802,7 @@ window.saveSimulationToLibrary = async function () {
   const subject = document.getElementById("simulationSubject").value;
 
   try {
-   const data = {
+  const data = {
   meta: {
     title: document.getElementById("simulationTitle").value,
     subject: document.getElementById("simulationSubject").value,
@@ -811,9 +811,10 @@ window.saveSimulationToLibrary = async function () {
 
   content: {
     description: document.getElementById("simulationDescription").value,
-    scenario: document.getElementById("scenario").value,
     teacherNotes: document.getElementById("teacherNotes").value
   },
+
+  stages: stages, // 🔥 THIS IS THE KEY LINE
 
   createdAt: new Date()
 };

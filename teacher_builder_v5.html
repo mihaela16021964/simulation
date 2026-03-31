@@ -720,7 +720,9 @@ function loadSimulationForEdit(){
 loadSimulationForEdit();
 loadStageIntoForm();
 updatePreview();
-
+window.saveCurrentStage = saveCurrentStage;
+window.simulationMeta = simulationMeta;
+window.stages = stages;
 </script>
 <script type="module">
 

@@ -753,6 +753,32 @@ import { getFirestore, collection, addDoc }
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
   let stages = [];
 let currentStage = 0;
+  window.addStage = function () {
+  const newStage = {
+    title: "",
+    scenario: "",
+    options: []
+  };
+
+  stages.push(newStage);
+  currentStage = stages.length - 1;
+
+  alert("Stage added! Total stages: " + stages.length);
+};
+  window.saveCurrentStage = function () {
+  if (stages.length === 0) {
+    alert("Add a stage first!");
+    return;
+  }
+
+  stages[currentStage] = {
+    title: document.getElementById("stageTitle").value,
+    scenario: document.getElementById("scenarioText").value
+  };
+
+  console.log("Saved stage:", stages[currentStage]);
+  alert("Stage saved!");
+};
 
 // 🔑 Your Firebase config (copy from index.html)
 const firebaseConfig = {

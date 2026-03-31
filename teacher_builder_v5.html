@@ -89,7 +89,27 @@ textarea,input{ width:100%; margin-top:6px; padding:8px; }
 </div>
 
 <script>
+function renderStageList() {
+  const container = document.getElementById("stageList");
+  container.innerHTML = "";
 
+  stages.forEach((stage, index) => {
+    const btn = document.createElement("button");
+    btn.innerText = "Stage " + (index + 1);
+
+    btn.style.display = "block";
+    btn.style.marginBottom = "8px";
+    btn.style.width = "100%";
+
+    btn.onclick = () => {
+      currentStage = index;
+      loadStage();
+      updatePreview();
+    };
+
+    container.appendChild(btn);
+  });
+}
 let currentStage = 0;
 
 let simulationMeta = {
@@ -167,6 +187,7 @@ function addStage(){
   stages.push(createEmptyStage());
   currentStage = stages.length - 1;
   loadStage();
+  renderStageList();
 }
 
 function prevStage(){
@@ -174,6 +195,7 @@ function prevStage(){
     saveStage();
     currentStage--;
     loadStage();
+    renderStageList();
   }
 }
 
@@ -182,6 +204,7 @@ function nextStage(){
     saveStage();
     currentStage++;
     loadStage();
+    renderStageList();
   }
 }
 
@@ -257,7 +280,7 @@ window.saveSimulation = async function () {
     alert("Error saving");
   }
 };
-
+renderStageList();
 </script>
 </body>
 </html>

@@ -208,11 +208,15 @@ const db = getFirestore(app);
 window.saveSimulation = async function () {
 
   const sim = {
+  meta: {
     subject: document.getElementById("subject").value,
-    title: document.getElementById("title").value,
-    stages: stages,
-    createdAt: new Date()
-  };
+    title: document.getElementById("title").value
+  },
+
+  stages: stages,
+
+  createdAt: new Date()
+};
 
   try {
     const docRef = await addDoc(collection(db, "simulations"), sim);

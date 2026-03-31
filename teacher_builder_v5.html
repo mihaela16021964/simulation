@@ -208,17 +208,30 @@ function nextStage(){
   }
 }
 renderStageList();
-function updatePreview(){
-  let s = stages[currentStage];
+function updatePreview() {
+  const s = stages[currentStage];
 
-  let html = `<h3>${s.stageTitle || "Untitled"}</h3>`;
-  html += `<p>${s.scenarioText}</p>`;
+  let html = "";
 
-  s.options.forEach(o=>{
-    if(o.text){
-      html += `<button>${o.text}</button>`;
+  html += `<h2>${simulationMeta.title || "Simulation"}</h2>`;
+  html += `<h3>Stage ${currentStage + 1}: ${s.stageTitle || "Untitled"}</h3>`;
+  html += `<p>${(s.scenarioText || "").replace(/\n/g, "<br>")}</p>`;
+
+  html += `<hr><p><b>Choose an option:</b></p>`;
+
+  s.options.forEach((opt, index) => {
+    if (opt.text && opt.text.trim() !== "") {
+      html += `<button onclick="previewChoice(${index})">
+        ${opt.text}
+      </button>`;
     }
   });
+function previewChoice(index) {
+  const option = stages[currentStage].options[index];
+  alert("You chose: " + option.text);
+}
+  document.getElementById("preview").innerHTML = html;
+}
 
   document.getElementById("preview").innerHTML = html;
 }

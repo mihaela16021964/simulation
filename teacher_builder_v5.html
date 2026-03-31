@@ -444,7 +444,9 @@ function saveCurrentStage(){
   simulationMeta.description = document.getElementById("simulationDescription").value;
   simulationMeta.level = document.getElementById("simulationLevel").value;
   simulationMeta.teacherNotes = document.getElementById("teacherNotes").value;
-
+window.saveCurrentStage = saveCurrentStage;
+window.stages = stages;
+window.simulationMeta = simulationMeta;
   stages[currentStage] = {
     stageTitle: document.getElementById("stageTitle").value,
     scenarioText: document.getElementById("scenarioText").value,

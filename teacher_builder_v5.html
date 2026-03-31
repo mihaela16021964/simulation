@@ -723,6 +723,7 @@ updatePreview();
 window.saveCurrentStage = saveCurrentStage;
 window.simulationMeta = simulationMeta;
 window.stages = stages;
+  
 </script>
 <script type="module">
 
@@ -744,7 +745,9 @@ const db = getFirestore(app);
 
 window.saveSimulationToLibrary = async function () {
 console.log("🔥 BUTTON CLICKED");
-  saveCurrentStage(); // VERY IMPORTANT
+  window.saveCurrentStage(); // VERY IMPORTANT
+  meta: window.simulationMeta,
+stages: window.stages,
 
   try {
     const docRef = await addDoc(collection(db, "simulations"), {

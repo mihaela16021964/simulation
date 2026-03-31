@@ -726,6 +726,25 @@ function saveSimulationToLibrary(){
 loadSimulationForEdit();
 loadStageIntoForm();
 updatePreview();
+window.saveSimulationToLibrary = async function () {
+  console.log("Saving full simulation...");
+
+  const title = document.getElementById("simulationTitle").value;
+  const subject = document.getElementById("simulationSubject").value;
+
+  try {
+    const docRef = await addDoc(collection(db, "simulations"), {
+      title: title,
+      subject: subject,
+      createdAt: new Date()
+    });
+
+    console.log("✅ Simulation saved with ID:", docRef.id);
+    alert("Simulation saved!");
+  } catch (e) {
+    console.error("❌ Error:", e);
+  }
+};
 </script>
 
 </body>

@@ -187,27 +187,27 @@ function addStage(){
   stages.push(createEmptyStage());
   currentStage = stages.length - 1;
   loadStage();
-  renderStageList();
+  
 }
-
+renderStageList();
 function prevStage(){
   if(currentStage>0){
     saveStage();
     currentStage--;
     loadStage();
-    renderStageList();
+    
   }
 }
-
+renderStageList();
 function nextStage(){
   if(currentStage < stages.length - 1){
     saveStage();
     currentStage++;
     loadStage();
-    renderStageList();
+    
   }
 }
-
+renderStageList();
 function updatePreview(){
   let s = stages[currentStage];
 

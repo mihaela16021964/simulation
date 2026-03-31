@@ -158,25 +158,22 @@ button{
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  window.saveSimulation = async function () {
-    console.log("Clicked!");
+ window.saveSimulation = async function () {
+  console.log("Clicked!");
 
-    try {
-      const docRef = await addDoc(collection(db, "simulations"), {
-        const title = prompt("Enter simulation title:");
+  try {
+    const title = prompt("Enter simulation title:");
 
-const docRef = await addDoc(collection(db, "simulations"), {
-  title: title,
-  createdAt: new Date()
-});
-        createdAt: new Date()
-      });
+    const docRef = await addDoc(collection(db, "simulations"), {
+      title: title,
+      createdAt: new Date()
+    });
 
-      console.log("✅ Saved with ID:", docRef.id);
-    } catch (e) 
-      console.error("❌ Error:", e);
-    }
-  };
+    console.log("✅ Saved with ID:", docRef.id);
+  } catch (e) {
+    console.error("❌ Error:", e);
+  }
+};
 </script>
 </body>
 </html>

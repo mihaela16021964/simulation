@@ -471,7 +471,7 @@ function saveCurrentStage(){
         ]
       ]
     },
-    options:[
+   options: [
   {
     text: document.getElementById("opt1").value,
     points: Number(document.getElementById("pts1").value || 0),
@@ -497,30 +497,6 @@ function saveCurrentStage(){
     label: document.getElementById("label4").value
   }
 ]
-        text: document.getElementById("opt2").value,
-        points: Number(document.getElementById("pts2").value || 0),
-        nextStage: document.getElementById("next2").value,
-        label: document.getElementById("label2").value
-      },
-  
-
-      {
-        text: document.getElementById("opt3").value,
-        points: Number(document.getElementById("pts3").value || 0),
-        nextStage: document.getElementById("next3").value,
-        label: document.getElementById("label3").value
-      },
-  
-
-      {
-        text: document.getElementById("opt4").value,
-        points: Number(document.getElementById("pts4").value || 0),
-        nextStage: document.getElementById("next4").value,
-        label: document.getElementById("label4").value
-      }
-  
-
-    ]
   };
 
   document.getElementById("message").innerText = "Stage " + (currentStage + 1) + " saved.";
@@ -742,25 +718,7 @@ function saveSimulationToLibrary(){
 loadSimulationForEdit();
 loadStageIntoForm();
 updatePreview();
-window.saveSimulationToLibrary = async function () {
-  console.log("Saving full simulation...");
 
-  const title = document.getElementById("simulationTitle").value;
-  const subject = document.getElementById("simulationSubject").value;
-
-  try {
-    const docRef = await addDoc(collection(db, "simulations"), {
-      title: title,
-      subject: subject,
-      createdAt: new Date()
-    });
-
-    console.log("✅ Simulation saved with ID:", docRef.id);
-    alert("Simulation saved!");
-  } catch (e) {
-    console.error("❌ Error:", e);
-  }
-};
 </script>
 
 </body>

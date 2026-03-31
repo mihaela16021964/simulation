@@ -661,7 +661,7 @@ function loadSimulationForEdit(){
   document.getElementById("message").innerText = "Editing existing simulation.";
 }
 
-function saveSimulationToLibrary(){
+
   saveCurrentStage();
 
   if(!simulationMeta.subject.trim()){
@@ -720,6 +720,44 @@ loadStageIntoForm();
 updatePreview();
 
 </script>
+<script type="module">
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, addDoc } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
+  authDomain: "satoori-simulations.firebaseapp.com",
+  projectId: "satoori-simulations",
+  storageBucket: "satoori-simulations.appspot.com",
+  messagingSenderId: "62316008106",
+  appId: "1:62316008106:web:68a421970d857348e476d3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.saveSimulationToLibrary = async function () {
+
+  saveCurrentStage(); // VERY IMPORTANT
+
+  try {
+    const docRef = await addDoc(collection(db, "simulations"), {
+      meta: simulationMeta,
+      stages: stages,
+      createdAt: new Date()
+    });
+
+    console.log("✅ Saved with ID:", docRef.id);
+    alert("Simulation saved to Firestore!");
+
+  } catch (e) {
+    console.error("❌ Error:", e);
+    alert("Error saving simulation");
+  }
+};
+
+</script>
 </body>
 </html>

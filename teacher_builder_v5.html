@@ -157,15 +157,15 @@ function nextStage(){
 }
 
 function updatePreview() {
-  console.log("Preview clicked");
+  const s = stages[currentStage];
 
-  document.getElementById("preview").innerHTML = "<h2>TEST PREVIEW WORKS</h2>";
-}
-  html += `<p>${s.scenarioText}</p>`;
+  let html = "";
+  html += "<h2>Preview</h2>";
+  html += "<p>" + (s.scenarioText || "") + "</p>";
 
-  s.options.forEach(o=>{
-    if(o.text){
-      html += `<button>${o.text}</button>`;
+  s.options.forEach(o => {
+    if (o.text) {
+      html += "<button>" + o.text + "</button>";
     }
   });
 

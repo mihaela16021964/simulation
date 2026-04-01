@@ -155,10 +155,11 @@ function nextStage(){
   }
 }
 
-function updatePreview(){
-  let s = stages[currentStage];
+function updatePreview() {
+  console.log("Preview clicked");
 
-  let html = `<h3>${s.stageTitle || "Untitled"}</h3>`;
+  document.getElementById("preview").innerHTML = "<h2>TEST PREVIEW WORKS</h2>";
+}</h3>`;
   html += `<p>${s.scenarioText}</p>`;
 
   s.options.forEach(o=>{

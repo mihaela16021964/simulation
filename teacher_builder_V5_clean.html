@@ -632,7 +632,7 @@ function randomId(length=10){
   return out;
 }
 
-function saveSimulationToLibrary(){
+async function saveSimulationToLibrary(){
   saveCurrentStage();
 
   if(!simulationMeta.subject.trim()){
@@ -660,12 +660,20 @@ function saveSimulationToLibrary(){
   library.push(simulationObject);
   localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
 
-  document.getElementById("message").innerHTML = "Simulation saved to Teacher Library V5.";
+  try {
+    const docRef = await addDoc(collection(db, "simulations"), simulationObject);
+    console.log("Saved to Firestore:", docRef.id);
+    document.getElementById("message").innerHTML =
+      "Simulation saved to Teacher Library V5 and Firestore.";
+  } catch (error) {
+    console.error("Firestore save failed:", error);
+    document.getElementById("message").innerHTML =
+      "Saved locally, but Firestore failed. Check console.";
+  }
 }
-
 loadStageIntoForm();
 updatePreview();
-</script>
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
@@ -682,9 +690,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 window.db = db;
-window.addDoc = addDoc;
 window.collection = collection;
-
+window.addDoc = addDoc;
 </script>
 </body>
 </html>

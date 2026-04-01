@@ -560,16 +560,20 @@ function renderTable(table){
     html += "</tr>";
   }
 
-  table.rows.forEach(row=>{
-    if(row.some(c => c && c.trim() !== "")){
-      html += "<tr>";
-      row.forEach(c=>{
-        html += `<td>${c || ""}</td>`;
-      });
-      html += "</tr>";
-    }
-  });
+  table.rows.forEach(row => {
+  const hasContent =
+    (row.c1 && row.c1.trim() !== "") ||
+    (row.c2 && row.c2.trim() !== "") ||
+    (row.c3 && row.c3.trim() !== "");
 
+  if (hasContent) {
+    html += "<tr>";
+    html += `<td>${row.c1 || ""}</td>`;
+    html += `<td>${row.c2 || ""}</td>`;
+    html += `<td>${row.c3 || ""}</td>`;
+    html += "</tr>";
+  }
+});
   html += "</table>";
   return html;
 }

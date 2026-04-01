@@ -6,36 +6,6 @@
 <title>SatooriLabs – Teacher Builder V5 (Clean)</title>
 
 <style>
-  .container {
-  max-width: 1400px;
-  margin: auto;
-}
-
-.main-grid {
-  display: grid;
-  grid-template-columns: 250px 1fr 1fr;
-  gap: 20px;
-}
-
-.panel {
-  border: 1px solid #ccc;
-  padding: 15px;
-}
-  .container {
-  max-width: 1400px;
-  margin: auto;
-}
-
-.main-grid {
-  display: grid;
-  grid-template-columns: 250px 1fr 1fr;
-  gap: 20px;
-}
-
-.panel {
-  border: 1px solid #ccc;
-  padding: 15px;
-}
 body{ font-family: Arial; font-size:16px; }
 .container{ max-width:1200px; margin:auto; padding:20px; }
 .panel{ border:1px solid #ddd; padding:16px; margin-top:20px; }
@@ -89,27 +59,7 @@ textarea,input{ width:100%; margin-top:6px; padding:8px; }
 </div>
 
 <script>
-function renderStageList() {
-  const container = document.getElementById("stageList");
-  container.innerHTML = "";
 
-  stages.forEach((stage, index) => {
-    const btn = document.createElement("button");
-    btn.innerText = "Stage " + (index + 1);
-
-    btn.style.display = "block";
-    btn.style.marginBottom = "8px";
-    btn.style.width = "100%";
-
-    btn.onclick = () => {
-      currentStage = index;
-      loadStage();
-      updatePreview();
-    };
-
-    container.appendChild(btn);
-  });
-}
 let currentStage = 0;
 
 let simulationMeta = {
@@ -187,51 +137,35 @@ function addStage(){
   stages.push(createEmptyStage());
   currentStage = stages.length - 1;
   loadStage();
-  
 }
-renderStageList();
+
 function prevStage(){
   if(currentStage>0){
     saveStage();
     currentStage--;
     loadStage();
-    
   }
 }
-renderStageList();
+
 function nextStage(){
   if(currentStage < stages.length - 1){
     saveStage();
     currentStage++;
     loadStage();
-    
   }
 }
-renderStageList();
-function updatePreview() {
-  const s = stages[currentStage];
 
-  let html = "";
+function updatePreview(){
+  let s = stages[currentStage];
 
-  html += `<h2>${simulationMeta.title || "Simulation"}</h2>`;
-  html += `<h3>Stage ${currentStage + 1}: ${s.stageTitle || "Untitled"}</h3>`;
-  html += `<p>${(s.scenarioText || "").replace(/\n/g, "<br>")}</p>`;
+  let html = `<h3>${s.stageTitle || "Untitled"}</h3>`;
+  html += `<p>${s.scenarioText}</p>`;
 
-  html += `<hr><p><b>Choose an option:</b></p>`;
-
-  s.options.forEach((opt, index) => {
-    if (opt.text && opt.text.trim() !== "") {
-      html += `<button onclick="previewChoice(${index})">
-        ${opt.text}
-      </button>`;
+  s.options.forEach(o=>{
+    if(o.text){
+      html += `<button>${o.text}</button>`;
     }
   });
-function previewChoice(index) {
-  const option = stages[currentStage].options[index];
-  alert("You chose: " + option.text);
-}
-  document.getElementById("preview").innerHTML = html;
-}
 
   document.getElementById("preview").innerHTML = html;
 }
@@ -254,46 +188,6 @@ function saveSimulation(){
 loadStage();
 
 </script>
-<script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
-  authDomain: "satoori-simulations.firebaseapp.com",
-  projectId: "satoori-simulations",
-  storageBucket: "satoori-simulations.firebasestorage.app",
-  messagingSenderId: "62316008106",
-  appId: "1:62316008106:web:68a421970d857348e476d3"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.saveSimulation = async function () {
-
-  const sim = {
-  meta: {
-    subject: document.getElementById("subject").value,
-    title: document.getElementById("title").value
-  },
-
-  stages: stages,
-
-  createdAt: new Date()
-};
-
-  try {
-    const docRef = await addDoc(collection(db, "simulations"), sim);
-    console.log("Saved with ID:", docRef.id);
-    alert("Saved to Firestore!");
-  } catch (e) {
-    console.error(e);
-    alert("Error saving");
-  }
-};
-renderStageList();
-</script>
 </body>
 </html>

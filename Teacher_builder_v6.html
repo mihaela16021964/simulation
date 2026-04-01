@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SatooriLabs – Teacher Builder V5</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f4f7fb;
+  margin:0;
+  padding:20px;
+}
+
+.container{
+  max-width:1400px;
+  margin:auto;
+  background:white;
+  padding:24px;
+  border-radius:14px;
+  box-shadow:0 0 12px rgba(0,0,0,0.08);
+}
+
+h2, h3{
+  margin-top:0;
+}
+
+.top-section{
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:18px;
+  background:#f8fafc;
+  margin-bottom:20px;
+}
+
+.top-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.main-grid{
+  display:grid;
+  grid-template-columns:260px 1fr 1fr;
+  gap:20px;
+}
+
+.panel{
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:16px;
+  background:#ffffff;
+  min-height:650px;
+}
+
+.stage-list button{
+  width:100%;
+  margin-top:10px;
+  text-align:left;
+  background:#e5e7eb;
+  color:#111827;
+}
+
+.stage-list button.active{
+  background:#2563eb;
+  color:white;
+}
+
+label{
+  font-weight:bold;
+  display:block;
+  margin-top:12px;
+}
+
+input, textarea, select{
+  width:100%;
+  box-sizing:border-box;
+  padding:10px;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  margin-top:6px;
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+.option-card{
+  border:1px solid #dbeafe;
+  border-radius:12px;
+  padding:12px;
+  margin-top:12px;
+  background:#f8fbff;
+}
+
+.option-grid{
+  display:grid;
+  grid-template-columns:1fr 110px 130px;
+  gap:10px;
+  margin-top:10px;
+}
+
+button{
+  padding:12px 16px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.blue{ background:#2563eb; color:white; }
+.green{ background:#16a34a; color:white; }
+.gray{ background:#e5e7eb; color:#111827; }
+.red{ background:#dc2626; color:white; }
+
+.preview{
+  background:#f8fafc;
+}
+
+.badge{
+  display:inline-block;
+  padding:6px 12px;
+  background:#dbeafe;
+  color:#1d4ed8;
+  border-radius:999px;
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+.preview button{
+  width:100%;
+  margin-top:10px;
+  background:#2563eb;
+  color:white;
+}
+
+.preview-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:12px;
+}
+
+.preview-table td,
+.preview-table th{
+  border:1px solid #cbd5e1;
+  padding:8px;
+}
+
+small{
+  color:#475569;
+}
+
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:16px;
+}
+
+#message{
+  margin-top:12px;
+  font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <h2>SatooriLabs – Teacher Builder V5</h2>
+  <small>Phase A: structured stage-by-stage simulation composer.</small>
+
+  <!-- GLOBAL SIMULATION PANEL -->
+  <div class="top-section">
+    <h3>Simulation Overview</h3>
+    <div class="top-grid">
+
+      <div>
+        <label>Subject</label>
+        <input id="simulationSubject" placeholder="e.g. Geography / Business / Health & Social Care">
+
+        <label>Simulation Title</label>
+        <input id="simulationTitle" placeholder="e.g. Flood Risk Management">
+
+        <label>Simulation Description</label>
+        <textarea id="simulationDescription" placeholder="Describe the purpose of this simulation..."></textarea>
+      </div>
+
+      <div>
+        <label>Level / Class</label>
+        <input id="simulationLevel" placeholder="e.g. Level 3 / Year 10 / Adult learners">
+
+        <label>Teacher Notes</label>
+        <textarea id="teacherNotes" placeholder="Private notes for planning or delivery..."></textarea>
+
+        <div class="toolbar">
+          <button class="blue" onclick="addStage()">Add Stage</button>
+          <button class="gray" onclick="prevStage()">Previous Stage</button>
+          <button class="gray" onclick="nextStage()">Next Stage</button>
+          <button class="green" onclick="saveCurrentStage()">Save Current Stage</button>
+          <button class="blue" onclick="updatePreview()">Preview</button>
+          <button class="red" onclick="deleteStage()">Delete Stage</button>
+          <button class="green" onclick="saveSimulationToLibrary()">Save Full Simulation</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="main-grid">
+
+    <!-- STAGE LIST -->
+    <div class="panel stage-list">
+      <h3>Stages</h3>
+      <div id="stageButtons"></div>
+    </div>
+
+    <!-- STAGE EDITOR -->
+    <div class="panel">
+      <div class="badge" id="stageIndicator">Stage 1</div>
+
+      <label>Stage Title</label>
+      <input id="stageTitle" placeholder="e.g. Stage 1 – Identify the issue">
+
+      <label>Scenario Text</label>
+      <textarea id="scenarioText" placeholder="Write the scenario for this stage..."></textarea>
+
+      <label>Image URL (optional)</label>
+      <input id="imageUrl" placeholder="https://...jpg/png">
+
+      <label>Audio URL (optional)</label>
+      <input id="audioUrl" placeholder="https://...mp3">
+
+      <label>Video URL (optional)</label>
+      <input id="videoUrl" placeholder="https://...mp4 or YouTube link">
+
+      <label>Optional Table Title</label>
+      <input id="tableTitle" placeholder="e.g. Cost Table / Comparison Table">
+
+      <div class="option-card">
+        <b>Table Headers</b>
+        <div class="option-grid">
+          <input id="th1" placeholder="Column 1">
+          <input id="th2" placeholder="Column 2">
+          <input id="th3" placeholder="Column 3">
+        </div>
+      </div>
+
+      <div class="option-card">
+        <b>Row 1</b>
+        <div class="option-grid">
+          <input id="r1c1" placeholder="Cell 1">
+          <input id="r1c2" placeholder="Cell 2">
+          <input id="r1c3" placeholder="Cell 3">
+        </div>
+      </div>
+
+      <div class="option-card">
+        <b>Row 2</b>
+        <div class="option-grid">
+          <input id="r2c1" placeholder="Cell 1">
+          <input id="r2c2" placeholder="Cell 2">
+          <input id="r2c3" placeholder="Cell 3">
+        </div>
+      </div>
+
+      <h3 style="margin-top:18px;">Options</h3>
+
+      <div class="option-card">
+        <b>Option 1</b>
+        <textarea id="opt1" placeholder="Write the full decision / consequence / context..."></textarea>
+        <div class="option-grid">
+          <input id="pts1" type="number" placeholder="Points" value="0">
+          <input id="next1" type="number" placeholder="Next stage">
+          <input id="label1" placeholder="Optional label">
+        </div>
+      </div>
+
+      <div class="option-card">
+        <b>Option 2</b>
+        <textarea id="opt2" placeholder="Write the full decision / consequence / context..."></textarea>
+        <div class="option-grid">
+          <input id="pts2" type="number" placeholder="Points" value="0">
+          <input id="next2" type="number" placeholder="Next stage">
+          <input id="label2" placeholder="Optional label">
+        </div>
+      </div>
+
+      <div class="option-card">
+        <b>Option 3</b>
+        <textarea id="opt3" placeholder="Write the full decision / consequence / context..."></textarea>
+        <div class="option-grid">
+          <input id="pts3" type="number" placeholder="Points" value="0">
+          <input id="next3" type="number" placeholder="Next stage">
+          <input id="label3" placeholder="Optional label">
+        </div>
+      </div>
+
+      <div class="option-card">
+        <b>Option 4</b>
+        <textarea id="opt4" placeholder="Write the full decision / consequence / context..."></textarea>
+        <div class="option-grid">
+          <input id="pts4" type="number" placeholder="Points" value="0">
+          <input id="next4" type="number" placeholder="Next stage">
+          <input id="label4" placeholder="Optional label">
+        </div>
+      </div>
+
+      <div id="message"></div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="panel preview">
+      <h3>Student Preview</h3>
+      <div id="previewBox">
+        <p><i>Preview will appear here.</i></p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let currentStage = 0;
+let editingSimulationId = null;
+let simulationMeta = {
+  subject: "",
+  title: "",
+  description: "",
+  level: "",
+  teacherNotes: ""
+};
+
+let stages = [createEmptyStage()];
+
+function createEmptyStage(){
+  return {
+    stageTitle:"",
+    scenarioText:"",
+    imageUrl:"",
+    audioUrl:"",
+    videoUrl:"",
+    table:{
+      title:"",
+      headers:["","",""],
+      rows:[
+        ["","",""],
+        ["","",""]
+      ]
+    },
+    options:[
+      {text:"", points:0, nextStage:"", label:""},
+      {text:"", points:0, nextStage:"", label:""},
+      {text:"", points:0, nextStage:"", label:""},
+      {text:"", points:0, nextStage:"", label:""}
+    ]
+  };
+}
+
+function getYouTubeEmbed(url){
+  if(!url) return "";
+  let id = "";
+  if(url.includes("watch?v=")){
+    id = url.split("watch?v=")[1].split("&")[0];
+  } else if(url.includes("youtu.be/")){
+    id = url.split("youtu.be/")[1].split("?")[0];
+  }
+  if(id){
+    return `<iframe width="100%" height="260" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe>`;
+  }
+  return "";
+}
+
+function renderStageButtons(){
+  let html = "";
+  stages.forEach((s, index)=>{
+    html += `
+      <button class="${index === currentStage ? 'active' : ''}" onclick="goToStage(${index})">
+        Stage ${index + 1}${s.stageTitle ? " – " + s.stageTitle : ""}
+      </button>
+    `;
+  });
+  document.getElementById("stageButtons").innerHTML = html;
+}
+
+function goToStage(index){
+  saveCurrentStage();
+  currentStage = index;
+  loadStageIntoForm();
+  updatePreview();
+}
+
+function loadStageIntoForm(){
+  const s = stages[currentStage];
+
+  document.getElementById("stageIndicator").innerText = "Stage " + (currentStage + 1);
+
+  document.getElementById("simulationSubject").value = simulationMeta.subject;
+  document.getElementById("simulationTitle").value = simulationMeta.title;
+  document.getElementById("simulationDescription").value = simulationMeta.description;
+  document.getElementById("simulationLevel").value = simulationMeta.level;
+  document.getElementById("teacherNotes").value = simulationMeta.teacherNotes;
+
+  document.getElementById("stageTitle").value = s.stageTitle;
+  document.getElementById("scenarioText").value = s.scenarioText;
+  document.getElementById("imageUrl").value = s.imageUrl;
+  document.getElementById("audioUrl").value = s.audioUrl;
+  document.getElementById("videoUrl").value = s.videoUrl;
+
+  document.getElementById("tableTitle").value = s.table.title;
+  document.getElementById("th1").value = s.table.headers[0];
+  document.getElementById("th2").value = s.table.headers[1];
+  document.getElementById("th3").value = s.table.headers[2];
+
+  document.getElementById("r1c1").value = s.table.rows[0][0];
+  document.getElementById("r1c2").value = s.table.rows[0][1];
+  document.getElementById("r1c3").value = s.table.rows[0][2];
+  document.getElementById("r2c1").value = s.table.rows[1][0];
+  document.getElementById("r2c2").value = s.table.rows[1][1];
+  document.getElementById("r2c3").value = s.table.rows[1][2];
+
+  for(let i=0;i<4;i++){
+    document.getElementById("opt"+(i+1)).value = s.options[i].text;
+    document.getElementById("pts"+(i+1)).value = s.options[i].points;
+    document.getElementById("next"+(i+1)).value = s.options[i].nextStage;
+    document.getElementById("label"+(i+1)).value = s.options[i].label;
+  }
+
+  renderStageButtons();
+}
+
+function saveCurrentStage(){
+  simulationMeta.subject = document.getElementById("simulationSubject").value;
+  simulationMeta.title = document.getElementById("simulationTitle").value;
+  simulationMeta.description = document.getElementById("simulationDescription").value;
+  simulationMeta.level = document.getElementById("simulationLevel").value;
+  simulationMeta.teacherNotes = document.getElementById("teacherNotes").value;
+
+  stages[currentStage] = {
+    stageTitle: document.getElementById("stageTitle").value,
+    scenarioText: document.getElementById("scenarioText").value,
+    imageUrl: document.getElementById("imageUrl").value,
+    audioUrl: document.getElementById("audioUrl").value,
+    videoUrl: document.getElementById("videoUrl").value,
+    table:{
+      title: document.getElementById("tableTitle").value,
+      headers:[
+        document.getElementById("th1").value,
+        document.getElementById("th2").value,
+        document.getElementById("th3").value
+      ],
+      rows:[
+        [
+          document.getElementById("r1c1").value,
+          document.getElementById("r1c2").value,
+          document.getElementById("r1c3").value
+        ],
+        [
+          document.getElementById("r2c1").value,
+          document.getElementById("r2c2").value,
+          document.getElementById("r2c3").value
+        ]
+      ]
+    },
+    options:[
+      {
+        text: document.getElementById("opt1").value,
+        points: Number(document.getElementById("pts1").value || 0),
+        nextStage: document.getElementById("next1").value,
+        label: document.getElementById("label1").value
+      },
+      {
+        text: document.getElementById("opt2").value,
+        points: Number(document.getElementById("pts2").value || 0),
+        nextStage: document.getElementById("next2").value,
+        label: document.getElementById("label2").value
+      },
+      {
+        text: document.getElementById("opt3").value,
+        points: Number(document.getElementById("pts3").value || 0),
+        nextStage: document.getElementById("next3").value,
+        label: document.getElementById("label3").value
+      },
+      {
+        text: document.getElementById("opt4").value,
+        points: Number(document.getElementById("pts4").value || 0),
+        nextStage: document.getElementById("next4").value,
+        label: document.getElementById("label4").value
+      }
+    ]
+  };
+
+  document.getElementById("message").innerText = "Stage " + (currentStage + 1) + " saved.";
+  renderStageButtons();
+}
+
+function addStage(){
+  saveCurrentStage();
+  stages.push(createEmptyStage());
+  currentStage = stages.length - 1;
+  loadStageIntoForm();
+  updatePreview();
+}
+
+function prevStage(){
+  saveCurrentStage();
+  if(currentStage > 0){
+    currentStage--;
+    loadStageIntoForm();
+    updatePreview();
+  }
+}
+
+function nextStage(){
+  saveCurrentStage();
+  if(currentStage < stages.length - 1){
+    currentStage++;
+    loadStageIntoForm();
+    updatePreview();
+  }
+}
+
+function deleteStage(){
+  if(stages.length === 1){
+    alert("You must keep at least one stage.");
+    return;
+  }
+  stages.splice(currentStage, 1);
+  if(currentStage >= stages.length){
+    currentStage = stages.length - 1;
+  }
+  loadStageIntoForm();
+  updatePreview();
+}
+
+function renderTable(table){
+  const hasTitle = table.title && table.title.trim() !== "";
+  const hasHeaders = table.headers.some(h => h && h.trim() !== "");
+  const hasRows = table.rows.flat().some(c => c && c.trim() !== "");
+
+  if(!hasTitle && !hasHeaders && !hasRows){
+    return "";
+  }
+
+  let html = "";
+  if(hasTitle){
+    html += `<h4>${table.title}</h4>`;
+  }
+
+  html += `<table class="preview-table">`;
+
+  if(hasHeaders){
+    html += "<tr>";
+    table.headers.forEach(h=>{
+      html += `<th>${h || ""}</th>`;
+    });
+    html += "</tr>";
+  }
+
+  table.rows.forEach(row=>{
+    if(row.some(c => c && c.trim() !== "")){
+      html += "<tr>";
+      row.forEach(c=>{
+        html += `<td>${c || ""}</td>`;
+      });
+      html += "</tr>";
+    }
+  });
+
+  html += "</table>";
+  return html;
+}
+
+function updatePreview(){
+  saveCurrentStage();
+
+  const s = stages[currentStage];
+
+  let html = `<h2>${simulationMeta.subject || "Subject"}</h2>`;
+  html += `<h3>${simulationMeta.title || "Simulation Title"}</h3>`;
+  html += `<div class="badge">Stage ${currentStage + 1}</div>`;
+  html += `<h3>${s.stageTitle || "Untitled Stage"}</h3>`;
+
+  if(simulationMeta.description){
+    html += `<p><small><b>Description:</b> ${simulationMeta.description}</small></p>`;
+  }
+
+  if(simulationMeta.level){
+    html += `<p><small><b>Level:</b> ${simulationMeta.level}</small></p>`;
+  }
+
+  html += `<p>${(s.scenarioText || "").replace(/\n/g,"<br>")}</p>`;
+
+  if(s.imageUrl){
+    html += `<img src="${s.imageUrl}" style="max-width:100%;border-radius:10px;margin-top:10px;">`;
+  }
+
+  if(s.audioUrl){
+    html += `<div style="margin-top:10px;"><audio controls src="${s.audioUrl}" style="width:100%;"></audio></div>`;
+  }
+
+  const yt = getYouTubeEmbed(s.videoUrl);
+  if(yt){
+    html += `<div style="margin-top:10px;">${yt}</div>`;
+  } else if(s.videoUrl){
+    html += `<div style="margin-top:10px;"><video controls src="${s.videoUrl}" style="width:100%;border-radius:10px;"></video></div>`;
+  }
+
+  html += renderTable(s.table);
+
+  html += `<hr><p><b>Choose:</b></p>`;
+
+  s.options.forEach((opt)=>{
+    if(opt.text && opt.text.trim() !== ""){
+      const label = opt.label ? `<b>${opt.label}</b><br>` : "";
+      html += `<button>${label}${opt.text}</button>`;
+    }
+  });
+
+  document.getElementById("previewBox").innerHTML = html;
+}
+
+function randomId(length=10){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for(let i=0;i<length;i++){
+    out += chars[Math.floor(Math.random()*chars.length)];
+  }
+  return out;
+}
+
+function saveSimulationToLibrary(){
+  saveCurrentStage();
+
+  if(!simulationMeta.subject.trim()){
+    alert("Please add a subject.");
+    return;
+  }
+
+  if(!simulationMeta.title.trim()){
+    alert("Please add a simulation title.");
+    return;
+  }
+
+  let library = JSON.parse(localStorage.getItem("teacherSimLibraryV5") || "[]");
+
+  // 🔵 UPDATE EXISTING
+  if(editingSimulationId){
+
+    let index = library.findIndex(sim => sim.id === editingSimulationId);
+
+    if(index !== -1){
+      library[index] = {
+        ...library[index],
+        subject: simulationMeta.subject,
+        title: simulationMeta.title,
+        description: simulationMeta.description,
+        level: simulationMeta.level,
+        teacherNotes: simulationMeta.teacherNotes,
+        stages: stages,
+        updatedAt: new Date().toLocaleString()
+      };
+
+      localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
+
+      document.getElementById("message").innerText = "Simulation updated.";
+      return;
+    }
+  }
+
+  // 🟢 CREATE NEW
+  const newSimulation = {
+    id: randomId(),
+    subject: simulationMeta.subject,
+    title: simulationMeta.title,
+    description: simulationMeta.description,
+    level: simulationMeta.level,
+    teacherNotes: simulationMeta.teacherNotes,
+    createdAt: new Date().toLocaleString(),
+    stages: stages
+  };
+
+  library.push(newSimulation);
+  localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
+
+  editingSimulationId = newSimulation.id;
+
+  document.getElementById("message").innerText = "Simulation saved.";
+}
+  saveCurrentStage();
+
+  if(!simulationMeta.subject.trim()){
+    alert("Please add a subject.");
+    return;
+  }
+
+  if(!simulationMeta.title.trim()){
+    alert("Please add a simulation title.");
+    return;
+  }
+
+  const simulationObject = {
+    id: randomId(),
+    subject: simulationMeta.subject,
+    title: simulationMeta.title,
+    description: simulationMeta.description,
+    level: simulationMeta.level,
+    teacherNotes: simulationMeta.teacherNotes,
+    createdAt: new Date().toLocaleString(),
+    stages: stages
+  };
+
+  let library = JSON.parse(localStorage.getItem("teacherSimLibraryV5") || "[]");
+  library.push(simulationObject);
+  localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
+
+  document.getElementById("message").innerHTML = "Simulation saved to Teacher Library V5.";
+}
+
+loadStageIntoForm();
+updatePreview();
+  function editSimulation(simId){
+  window.location.href = "teacher_builder_v5.html?edit=" + simId;
+}
+</script>
+
+</body>
+</html>

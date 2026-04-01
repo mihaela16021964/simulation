@@ -165,13 +165,24 @@ function updatePreview() {
 
   s.options.forEach(o => {
     if (o.text) {
-      html += "<button>" + o.text + "</button>";
+     html += `<button onclick="previewChoice(${index})">${o.text}</button>`;
     }
   });
 
   document.getElementById("preview").innerHTML = html;
 }
 
+  function previewChoice(index) {
+  const option = stages[currentStage].options[index];
+
+  if(option.nextStage !== "" && !isNaN(option.nextStage)){
+    currentStage = Number(option.nextStage);
+    loadStage();
+    updatePreview();
+  } else {
+    alert("End of simulation");
+  }
+}
 function saveSimulation(){
   saveStage();
 

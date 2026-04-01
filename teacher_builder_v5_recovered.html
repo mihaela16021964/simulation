@@ -656,16 +656,50 @@ function saveSimulationToLibrary(){
     stages: stages
   };
 
+  // ✅ LOCAL SAVE (keep this)
   let library = JSON.parse(localStorage.getItem("teacherSimLibraryV5") || "[]");
   library.push(simulationObject);
   localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
 
+  // 🔥 FIRESTORE SAVE (new)
+  try {
+    addDoc(collection(db, "simulations"), simulationObject)
+      .then(docRef => {
+        console.log("Saved to Firestore:", docRef.id);
+      })
+      .catch(err => {
+        console.error("Firestore error:", err);
+      });
+  } catch(e){
+    console.error("Firestore not ready:", e);
+  }
+
   document.getElementById("message").innerHTML = "Simulation saved to Teacher Library V5.";
 }
-
 loadStageIntoForm();
 updatePreview();
 </script>
+<script type="module">
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
+  authDomain: "satoori-simulations.firebaseapp.com",
+  projectId: "satoori-simulations",
+  storageBucket: "satoori-simulations.firebasestorage.app",
+  messagingSenderId: "62316008106",
+  appId: "1:62316008106:web:68a421970d857348e476d3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.db = db;
+window.addDoc = addDoc;
+window.collection = collection;
+
+</script>
 </body>
 </html>

@@ -163,20 +163,20 @@ function updatePreview() {
   html += "<h2>Preview</h2>";
   html += "<p>" + (s.scenarioText || "") + "</p>";
 
-  s.options.forEach(o => {
+  s.options.forEach((o, index) => {
     if (o.text) {
-     html += `<button onclick="previewChoice(${index})">${o.text}</button>`;
+      html += `<button onclick="previewChoice(${index})">${o.text}</button>`;
     }
   });
 
   document.getElementById("preview").innerHTML = html;
 }
-  
-  function previewChoice(index) {
+
+function previewChoice(index) {
   const option = stages[currentStage].options[index];
 
-  if(option.nextStage !== "" && !isNaN(option.nextStage)){
-    currentStage = Number(option.nextStage);
+  if (option.nextStage !== "" && !isNaN(option.nextStage)) {
+    currentStage = Number(option.nextStage) - 1;
     loadStage();
     updatePreview();
   } else {

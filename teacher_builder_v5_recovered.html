@@ -560,23 +560,34 @@ function renderTable(table){
     html += "</tr>";
   }
 
-  table.rows.forEach(row => {
+ table.rows.forEach(row => {
+
+  let c1, c2, c3;
+
+  // handle BOTH formats
+  if (Array.isArray(row)) {
+    c1 = row[0];
+    c2 = row[1];
+    c3 = row[2];
+  } else {
+    c1 = row.c1;
+    c2 = row.c2;
+    c3 = row.c3;
+  }
+
   const hasContent =
-    (row.c1 && row.c1.trim() !== "") ||
-    (row.c2 && row.c2.trim() !== "") ||
-    (row.c3 && row.c3.trim() !== "");
+    (c1 && c1.trim() !== "") ||
+    (c2 && c2.trim() !== "") ||
+    (c3 && c3.trim() !== "");
 
   if (hasContent) {
     html += "<tr>";
-    html += `<td>${row.c1 || ""}</td>`;
-    html += `<td>${row.c2 || ""}</td>`;
-    html += `<td>${row.c3 || ""}</td>`;
+    html += `<td>${c1 || ""}</td>`;
+    html += `<td>${c2 || ""}</td>`;
+    html += `<td>${c3 || ""}</td>`;
     html += "</tr>";
   }
 });
-  html += "</table>";
-  return html;
-}
 
 function updatePreview(){
   saveCurrentStage();

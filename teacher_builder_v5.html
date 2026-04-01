@@ -61,7 +61,8 @@ textarea,input{ width:100%; margin-top:6px; padding:8px; }
 
 <script>
 
-let currentStage = 0;
+let totalScore = 0;
+  let currentStage = 0;
 
 let simulationMeta = {
   subject:"",
@@ -162,7 +163,7 @@ function updatePreview() {
   let html = "";
   html += "<h2>Preview</h2>";
   html += "<p>" + (s.scenarioText || "") + "</p>";
-
+  html += "<p><b>Score: " + totalScore + "</b></p>";
   s.options.forEach((o, index) => {
     if (o.text) {
       html += `<button onclick="previewChoice(${index})">${o.text}</button>`;
@@ -175,12 +176,16 @@ function updatePreview() {
 function previewChoice(index) {
   const option = stages[currentStage].options[index];
 
+  // add points
+  const pts = Number(option.points || 0);
+  totalScore += pts;
+
   if (option.nextStage !== "" && !isNaN(option.nextStage)) {
     currentStage = Number(option.nextStage) - 1;
     loadStage();
     updatePreview();
   } else {
-    alert("End of simulation");
+    alert("End of simulation\nScore: " + totalScore);
   }
 }
 function saveSimulation(){

@@ -632,16 +632,27 @@ function randomId(length=10){
   return out;
 }
 
-function saveSimulationToLibrary(){
+async function saveSimulationToLibrary(){
+  const saveBtn = document.getElementById("saveSimulationBtn");
+
+  if (saveBtn.disabled) return;
+
+  saveBtn.disabled = true;
+  saveBtn.innerText = "Saving...";
+
   saveCurrentStage();
 
   if(!simulationMeta.subject.trim()){
     alert("Please add a subject.");
+    saveBtn.disabled = false;
+    saveBtn.innerText = "Save Full Simulation";
     return;
   }
 
   if(!simulationMeta.title.trim()){
     alert("Please add a simulation title.");
+    saveBtn.disabled = false;
+    saveBtn.innerText = "Save Full Simulation";
     return;
   }
 
@@ -660,7 +671,23 @@ function saveSimulationToLibrary(){
   library.push(simulationObject);
   localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
 
-  document.getElementById("message").innerHTML = "Simulation saved to Teacher Library V5.";
+  try {
+    const docRef = await window.addDoc(
+      window.collection(window.db, "simulations"),
+      simulationObject
+    );
+
+    console.log("Saved to Firestore:", docRef.id);
+    document.getElementById("message").innerHTML =
+      "Simulation saved to Teacher Library V5 and Firestore.";
+  } catch (error) {
+    console.error("Firestore save failed:", error);
+    document.getElementById("message").innerHTML =
+      "Saved locally, but Firestore failed. Check console.";
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.innerText = "Save Full Simulation";
+  }
 }
 
 loadStageIntoForm();

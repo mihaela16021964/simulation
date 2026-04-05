@@ -672,10 +672,7 @@ async function saveSimulationToLibrary(){
   localStorage.setItem("teacherSimLibraryV5", JSON.stringify(library));
 
   try {
-    const docRef = await window.addDoc(
-      window.collection(window.db, "simulations"),
-      simulationObject
-    );
+    const docRef = await window.saveToFirestore(simulationObject);
 
     console.log("Saved to Firestore:", docRef.id);
     document.getElementById("message").innerHTML =
@@ -688,7 +685,7 @@ async function saveSimulationToLibrary(){
     saveBtn.disabled = false;
     saveBtn.innerText = "Save Full Simulation";
   }
-}
+
 
 loadStageIntoForm();
 updatePreview();

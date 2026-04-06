@@ -10,26 +10,37 @@
 <div id="library"></div>
 
 <script>
-function loadLibrary(){
-  let library = JSON.parse(localStorage.getItem("teacherSimLibraryV5") || "[]");
+async function loadLibrary(){
   let html = "";
 
-  if(library.length === 0){
-    html = "<p>No simulations saved yet.</p>";
-  } else {
-    library.forEach(sim => {
-      html += `
-        <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-          <b>${sim.title || ""}</b><br>
-          Subject: ${sim.subject || ""}<br><br>
-          <button onclick="openSim('${sim.id}')">Open</button>
-          <button onclick="editSim('${sim.id}')">Edit</button>
-        </div>
-      `;
-    });
-  }
+  try {
+    const snapshot = await window.getFirestoreLibrary();
 
-  document.getElementById("library").innerHTML = html;
+    if (snapshot.empty) {
+      html = "<p>No simulations saved yet.</p>";
+    } else {
+      snapshot.forEach(docSnap => {
+        const sim = docSnap.data();
+        const simId = docSnap.id;
+
+        html += `
+          <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+            <b>${sim.title || ""}</b><br>
+            Subject: ${sim.subject || ""}<br><br>
+            <button onclick="openSim('${simId}')">Open</button>
+            <button onclick="editSim('${simId}')">Edit</button>
+          </div>
+        `;
+      });
+    }
+
+    document.getElementById("library").innerHTML = html;
+
+  } catch (error) {
+    console.error("Failed to load Firestore library:", error);
+    document.getElementById("library").innerHTML =
+      "<p>Could not load simulations from Firestore.</p>";
+  }
 }
 
 function openSim(id){
@@ -42,6 +53,25 @@ function editSim(id){
 
 loadLibrary();
 </script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
+  authDomain: "satoori-simulations.firebaseapp.com",
+  projectId: "satoori-simulations",
+  storageBucket: "satoori-simulations.firebasestorage.app",
+  messagingSenderId: "62316008106",
+  appId: "1:62316008106:web:68a421970d857348e476d3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.getFirestoreLibrary = async function() {
+  return await getDocs(collection(db, "simulations"));
+};
+</script>
 </body>
 </html>

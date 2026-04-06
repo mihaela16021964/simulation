@@ -13,6 +13,12 @@
 async function loadLibrary(){
   let html = "";
 
+  if (!window.getFirestoreLibrary) {
+    document.getElementById("library").innerHTML =
+      "<p>Loading simulations...</p>";
+    return;
+  }
+
   try {
     const snapshot = await window.getFirestoreLibrary();
 
@@ -42,7 +48,6 @@ async function loadLibrary(){
       "<p>Could not load simulations from Firestore.</p>";
   }
 }
-
 function openSim(id){
   window.location.href = "play_v5.html?id=" + id;
 }
@@ -72,6 +77,13 @@ const db = getFirestore(app);
 window.getFirestoreLibrary = async function() {
   return await getDocs(collection(db, "simulations"));
 };
+
+if (window.loadLibrary) {
+  window.loadLibrary();
+}
+   window.loadLibrary = loadLibrary;
 </script>
+ 
+
 </body>
 </html>

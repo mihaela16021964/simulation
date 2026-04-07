@@ -55,8 +55,19 @@ function openSim(id){
 function editSim(id){
   window.location.href = "teacher_builder_v5.html?edit=" + id;
 }
-
+function getEditId(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("edit");
+}
 loadLibrary();
+  const editId = getEditId();
+
+if(editId){
+  loadSimulationFromFirestore(editId);
+} else {
+  loadStageIntoForm();
+  updatePreview();
+}
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
@@ -82,6 +93,19 @@ if (window.loadLibrary) {
   window.loadLibrary();
 }
    window.loadLibrary = loadLibrary;
+  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+window.getSimulationById = async function(id){
+  const ref = doc(db, "simulations", id);
+  const snap = await getDoc(ref);
+
+  if(snap.exists()){
+    return snap.data();
+  } else {
+    return null;
+  }
+};
+
 </script>
  
 

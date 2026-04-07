@@ -696,8 +696,14 @@ const db = getFirestore(app);
 window.saveToFirestore = async function(simulationObject) {
   return await addDoc(collection(db, "simulations"), simulationObject);
 };
+  const editId = getEditId();
+
+if(editId){
+  loadSimulationFromFirestore(editId);
+} else {
   loadStageIntoForm();
-updatePreview();
+  updatePreview();
+}
 </script>
 
 </body>

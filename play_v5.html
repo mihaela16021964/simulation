@@ -181,6 +181,11 @@ let score = 0;
 let studentName = localStorage.getItem("pilotStudentName") || localStorage.getItem("studentName") || "Student";
 
 async function loadSimulation(){
+  if (!window.getSimulationById) {
+    document.getElementById("content").innerHTML = "<h2>Loading simulation...</h2>";
+    return;
+  }
+
   try {
     simulation = await window.getSimulationById(simulationId);
 
@@ -326,7 +331,8 @@ function restartSimulation(){
 function goHome(){
   window.location.href = "index.html";
 }
-  loadSimulation();
+ window.loadSimulation = loadSimulation;
+loadSimulation();
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
@@ -354,6 +360,10 @@ window.getSimulationById = async function(id){
     return null;
   }
 };
+
+if (window.loadSimulation) {
+  window.loadSimulation();
+}
 </script>
 </body>
 </html>

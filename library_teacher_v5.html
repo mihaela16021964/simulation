@@ -60,14 +60,6 @@ function getEditId(){
   return params.get("edit");
 }
 loadLibrary();
-  const editId = getEditId();
-
-if(editId){
-  loadSimulationFromFirestore(editId);
-} else {
-  loadStageIntoForm();
-  updatePreview();
-}
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";

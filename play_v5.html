@@ -127,7 +127,11 @@ function renderTable(table){
 
   const hasTitle = table.title && table.title.trim() !== "";
   const hasHeaders = table.headers && table.headers.some(h => h && h.trim() !== "");
-  const hasRows = table.rows && table.rows.flat().some(c => c && c.trim() !== "");
+  const hasRows = table.rows && table.rows.some(row =>
+    (row.c1 && row.c1.trim() !== "") ||
+    (row.c2 && row.c2.trim() !== "") ||
+    (row.c3 && row.c3.trim() !== "")
+  );
 
   if(!hasTitle && !hasHeaders && !hasRows){
     return "";
@@ -150,12 +154,17 @@ function renderTable(table){
   }
 
   if(table.rows){
-    table.rows.forEach(row=>{
-      if(row.some(c => c && c.trim() !== "")){
+    table.rows.forEach(row => {
+      const hasContent =
+        (row.c1 && row.c1.trim() !== "") ||
+        (row.c2 && row.c2.trim() !== "") ||
+        (row.c3 && row.c3.trim() !== "");
+
+      if(hasContent){
         html += "<tr>";
-        row.forEach(c=>{
-          html += `<td>${c || ""}</td>`;
-        });
+        html += `<td>${row.c1 || ""}</td>`;
+        html += `<td>${row.c2 || ""}</td>`;
+        html += `<td>${row.c3 || ""}</td>`;
         html += "</tr>";
       }
     });
@@ -164,20 +173,30 @@ function renderTable(table){
   html += "</table>";
   return html;
 }
-
 let simulationId = getParam("id");
-let library = JSON.parse(localStorage.getItem("teacherSimLibraryV5") || "[]");
-let simulation = library.find(sim => sim.id === simulationId);
+let simulation = null;
 
 let currentStage = 0;
 let score = 0;
 let studentName = localStorage.getItem("pilotStudentName") || localStorage.getItem("studentName") || "Student";
 
-if(!simulation){
-  document.getElementById("content").innerHTML = "<h2>Simulation not found.</h2><p>Please return to the homepage.</p>";
-  document.getElementById("options").innerHTML = "";
-} else {
-  showStage();
+async function loadSimulation(){
+  try {
+    simulation = await window.getSimulationById(simulationId);
+
+    if(!simulation){
+      document.getElementById("content").innerHTML = "<h2>Simulation not found.</h2><p>Please return to the homepage.</p>";
+      document.getElementById("options").innerHTML = "";
+      return;
+    }
+
+    showStage();
+
+  } catch(error){
+    console.error("Could not load simulation:", error);
+    document.getElementById("content").innerHTML = "<h2>Simulation could not be loaded.</h2>";
+    document.getElementById("options").innerHTML = "";
+  }
 }
 
 function showStage(){
@@ -307,7 +326,34 @@ function restartSimulation(){
 function goHome(){
   window.location.href = "index.html";
 }
+  loadSimulation();
 </script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
+  authDomain: "satoori-simulations.firebaseapp.com",
+  projectId: "satoori-simulations",
+  storageBucket: "satoori-simulations.firebasestorage.app",
+  messagingSenderId: "62316008106",
+  appId: "1:62316008106:web:68a421970d857348e476d3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.getSimulationById = async function(id){
+  const ref = doc(db, "simulations", id);
+  const snap = await getDoc(ref);
+
+  if(snap.exists()){
+    return snap.data();
+  } else {
+    return null;
+  }
+};
+</script>
 </body>
 </html>

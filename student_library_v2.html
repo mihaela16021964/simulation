@@ -1,50 +1,39 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>SatooriLabs Student Library</title>
 
 <style>
-
 body{
-font-family:Arial;
-background:#f4f7fb;
+  font-family:Arial;
+  background:#f4f7fb;
 }
 
 .container{
-
-max-width:900px;
-margin:auto;
-background:white;
-padding:30px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-
+  max-width:900px;
+  margin:auto;
+  background:white;
+  padding:30px;
+  border-radius:10px;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
 table{
-
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
 }
 
 th, td{
-
-padding:12px;
-border-bottom:1px solid #ddd;
-
+  padding:12px;
+  border-bottom:1px solid #ddd;
 }
 
 th{
-
-background:#2563eb;
-color:white;
-
+  background:#2563eb;
+  color:white;
 }
-
 </style>
 
 </head>
@@ -66,23 +55,15 @@ Load My Results
 </button>
 
 <table>
-
 <thead>
-
 <tr>
-
 <th>Simulation</th>
-
 <th>Score</th>
-
 <th>Date</th>
-
 </tr>
-
 </thead>
 
 <tbody id="studentResults">
-
 </tbody>
 
 </table>
@@ -90,68 +71,27 @@ Load My Results
 </div>
 
 <script>
-
-
 function loadStudentResults(){
 
-let name = document.getElementById("studentSearch").value;
+  let name = document.getElementById("studentSearch").value;
 
-let digital = JSON.parse(localStorage.getItem("satooriDigitalResults")) || [];
+  let results = JSON.parse(localStorage.getItem("customResults") || "[]");
 
-let health = JSON.parse(localStorage.getItem("healthResults")) || [];
+  let table = "";
 
-let business = JSON.parse(localStorage.getItem("businessResults")) || [];
+  results.forEach(r => {
+    if(r.name === name){
+      table += "<tr>";
+      table += "<td>" + (r.simulation || "") + "</td>";
+      table += "<td>" + (r.score || "") + "</td>";
+      table += "<td>" + (r.date || "") + "</td>";
+      table += "</tr>";
+    }
+  });
 
-
-let results = [];
-
-
-digital.forEach(r=>{
-if(r.name==name){
-results.push({simulation:"Digital Skills", score:r.score, date:r.date});
+  document.getElementById("studentResults").innerHTML = table;
 }
-});
-
-
-health.forEach(r=>{
-if(r.name==name){
-results.push({simulation:"Health & Social Care", score:r.score, date:r.date});
-}
-});
-
-
-business.forEach(r=>{
-if(r.name==name){
-results.push({simulation:"Business", score:r.score, date:r.date});
-}
-});
-
-
-let table="";
-
-
-results.forEach(r=>{
-
-table+="<tr>";
-
-table+="<td>"+r.simulation+"</td>";
-
-table+="<td>"+r.score+"</td>";
-
-table+="<td>"+r.date+"</td>";
-
-table+="</tr>";
-
-});
-
-
-document.getElementById("studentResults").innerHTML=table;
-
-}
-
-
 </script>
 
 </body>
-
 </html>

@@ -25,9 +25,22 @@ async function loadLibrary(){
     if (snapshot.empty) {
       html = "<p>No simulations saved yet.</p>";
     } else {
+      const docs = [];
+
       snapshot.forEach(docSnap => {
-        const sim = docSnap.data();
-        const simId = docSnap.id;
+        docs.push({
+          id: docSnap.id,
+          data: docSnap.data()
+        });
+      });
+
+      docs.sort((a, b) => {
+        return new Date(b.data.createdAt) - new Date(a.data.createdAt);
+      });
+
+      docs.forEach(item => {
+        const sim = item.data;
+        const simId = item.id;
 
         html += `
           <div style="border:1px solid #ccc; padding:10px; margin:10px;">
@@ -48,6 +61,7 @@ async function loadLibrary(){
       "<p>Could not load simulations from Firestore.</p>";
   }
 }
+
 function openSim(id){
   window.location.href = "play_v5.html?id=" + id;
 }
@@ -55,12 +69,11 @@ function openSim(id){
 function editSim(id){
   window.location.href = "teacher_builder_v5_backup.html?edit=" + id;
 }
-function getEditId(){
-  const params = new URLSearchParams(window.location.search);
-  return params.get("edit");
-}
+
+window.loadLibrary = loadLibrary;
 loadLibrary();
 </script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
@@ -84,22 +97,7 @@ window.getFirestoreLibrary = async function() {
 if (window.loadLibrary) {
   window.loadLibrary();
 }
-   window.loadLibrary = loadLibrary;
-  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-window.getSimulationById = async function(id){
-  const ref = doc(db, "simulations", id);
-  const snap = await getDoc(ref);
-
-  if(snap.exists()){
-    return snap.data();
-  } else {
-    return null;
-  }
-};
-
 </script>
- 
 
 </body>
 </html>

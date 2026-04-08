@@ -206,10 +206,17 @@ async function loadSimulation(){
 
 function showStage(){
 
-  if(currentStage >= simulation.stages.length){
-    finishSimulation();
-    return;
-  }
+  if(!simulation.stages || !Array.isArray(simulation.stages) || simulation.stages.length === 0){
+  document.getElementById("content").innerHTML =
+    "<h2>This simulation has no stages yet.</h2><p>Please return to the Teacher Library and open a complete simulation.</p>";
+  document.getElementById("options").innerHTML = "";
+  return;
+}
+
+if(currentStage >= simulation.stages.length){
+  finishSimulation();
+  return;
+}
 
   const stage = simulation.stages[currentStage];
 

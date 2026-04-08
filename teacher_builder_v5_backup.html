@@ -539,7 +539,11 @@ function deleteStage(){
 function renderTable(table){
   const hasTitle = table.title && table.title.trim() !== "";
   const hasHeaders = table.headers.some(h => h && h.trim() !== "");
-  const hasRows = table.rows.flat().some(c => c && c.trim() !== "");
+  const hasRows = table.rows.some(row =>
+    (row.c1 && row.c1.trim() !== "") ||
+    (row.c2 && row.c2.trim() !== "") ||
+    (row.c3 && row.c3.trim() !== "")
+  );
 
   if(!hasTitle && !hasHeaders && !hasRows){
     return "";
@@ -560,12 +564,17 @@ function renderTable(table){
     html += "</tr>";
   }
 
-  table.rows.forEach(row=>{
-    if(row.some(c => c && c.trim() !== "")){
+  table.rows.forEach(row => {
+    const hasContent =
+      (row.c1 && row.c1.trim() !== "") ||
+      (row.c2 && row.c2.trim() !== "") ||
+      (row.c3 && row.c3.trim() !== "");
+
+    if (hasContent) {
       html += "<tr>";
-      row.forEach(c=>{
-        html += `<td>${c || ""}</td>`;
-      });
+      html += `<td>${row.c1 || ""}</td>`;
+      html += `<td>${row.c2 || ""}</td>`;
+      html += `<td>${row.c3 || ""}</td>`;
       html += "</tr>";
     }
   });
@@ -573,7 +582,6 @@ function renderTable(table){
   html += "</table>";
   return html;
 }
-
 function updatePreview(){
   saveCurrentStage();
 

@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -13,7 +13,6 @@ body{
   color:#1e293b;
 }
 
-/* HEADER */
 .header{
   background:#2563eb;
   color:white;
@@ -28,7 +27,6 @@ body{
   font-weight:bold;
 }
 
-/* HERO */
 .hero{
   padding:60px 20px;
   text-align:center;
@@ -47,7 +45,6 @@ body{
   margin:auto;
 }
 
-/* BUTTONS */
 .buttons{
   margin-top:30px;
 }
@@ -68,9 +65,9 @@ button{
 
 .secondary{
   background:#e2e8f0;
+  color:#1e293b;
 }
 
-/* SECTIONS */
 .section{
   padding:40px 20px;
   max-width:900px;
@@ -92,12 +89,10 @@ button{
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="logo">SatooriLabs</div>
 </div>
 
-<!-- HERO -->
 <div class="hero">
   <h1>Interactive Case Studies Platform</h1>
 
@@ -108,17 +103,20 @@ button{
   </p>
 
   <div class="buttons">
-    <button class="primary" onclick="saveSimulation()">
+    <button class="primary" onclick="location.href='teacher_builder_v5_backup.html'">
       Create Simulation
     </button>
 
     <button class="secondary" onclick="location.href='library_teacher_v5.html'">
       Teacher Library
     </button>
+
+    <button class="secondary" onclick="location.href='student_library_v2.html'">
+      Student Library
+    </button>
   </div>
 </div>
 
-<!-- ABOUT -->
 <div class="section">
   <h2>What is this platform?</h2>
   <p>
@@ -128,7 +126,6 @@ button{
   </p>
 </div>
 
-<!-- WHY -->
 <div class="section">
   <h2>Why it matters</h2>
   <p>
@@ -138,42 +135,9 @@ button{
   </p>
 </div>
 
-<!-- FOOTER -->
 <div class="footer">
   © SatooriLabs – Interactive Case Studies Platform
 </div>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "PASTE_YOUR_API_KEY_HERE",
-    authDomain: "satoori-simulations.firebaseapp.com",
-    projectId: "satoori-simulations",
-    storageBucket: "satoori-simulations.appspot.com",
-    messagingSenderId: "62316008106",
-    appId: "1:62316008106:web:352b1c1b45d6a60ae476d3"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
- window.saveSimulation = async function () {
-  console.log("Clicked!");
-
-  try {
-    const title = prompt("Enter simulation title:");
-
-    const docRef = await addDoc(collection(db, "simulations"), {
-      title: title,
-      createdAt: new Date()
-    });
-
-    console.log("✅ Saved with ID:", docRef.id);
-  } catch (e) {
-    console.error("❌ Error:", e);
-  }
-};
-</script>
 </body>
 </html>

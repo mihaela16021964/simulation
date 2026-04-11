@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login – SatooriLabs</title>
+</head>
+<body>
+
+<h2>Login</h2>
+
+<input id="email" placeholder="Email"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
+
+<button onclick="login()">Login</button>
+<button onclick="signup()">Sign up</button>
+
+<p id="message"></p>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
+  authDomain: "satoori-simulations.firebaseapp.com",
+  projectId: "satoori-simulations"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.login = async function(){
+  try{
+    await signInWithEmailAndPassword(
+      auth,
+      document.getElementById("email").value,
+      document.getElementById("password").value
+    );
+
+    localStorage.setItem("userLoggedIn", "true");
+
+    window.location.href = "index.html";
+
+  }catch(e){
+    document.getElementById("message").innerText = e.message;
+  }
+};
+
+window.signup = async function(){
+  try{
+    await createUserWithEmailAndPassword(
+      auth,
+      document.getElementById("email").value,
+      document.getElementById("password").value
+    );
+
+    localStorage.setItem("userLoggedIn", "true");
+
+    window.location.href = "index.html";
+
+  }catch(e){
+    document.getElementById("message").innerText = e.message;
+  }
+};
+</script>
+
+</body>
+</html>

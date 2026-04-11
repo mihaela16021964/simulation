@@ -322,7 +322,10 @@ small{
 
   </div>
 </div>
-
+if(!localStorage.getItem("userLoggedIn")){
+  alert("Please login first");
+  window.location.href = "login.html";
+}
 <script>
 let currentStage = 0;
 

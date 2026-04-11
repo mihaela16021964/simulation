@@ -322,11 +322,12 @@ small{
 
   </div>
 </div>
-if(!localStorage.getItem("userLoggedIn")){
+
+<script>
+  if(!localStorage.getItem("userLoggedIn")){
   alert("Please login first");
   window.location.href = "login.html";
 }
-<script>
 let currentStage = 0;
 
 let simulationMeta = {

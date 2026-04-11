@@ -316,17 +316,20 @@ function finishSimulation(){
   saveCustomResult();
 }
 
-function saveCustomResult(){
-  let results = JSON.parse(localStorage.getItem("customResults") || "[]");
+async function saveCustomResult(){
+  try{
+    await window.saveResultToFirestore({
+      name: studentName,
+      simulation: simulation.title,
+      score: score,
+      date: new Date().toISOString()
+    });
 
-  results.push({
-    name: studentName,
-    simulation: simulation.title,
-    score: score,
-    date: new Date().toLocaleString()
-  });
+    console.log("Result saved to Firestore");
 
-  localStorage.setItem("customResults", JSON.stringify(results));
+  }catch(e){
+    console.error("Error saving result:", e);
+  }
 }
 
 function restartSimulation(){

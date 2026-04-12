@@ -116,6 +116,31 @@ function openSim(id){
 }
 
 function editSim(id){
+  async function archiveSim(id){
+  const ok = confirm("Archive this simulation?");
+  if(!ok) return;
+
+  try {
+    await window.archiveSimulation(id);
+    loadLibrary();
+  } catch(error){
+    console.error("Archive failed:", error);
+    alert("Could not archive simulation.");
+  }
+}
+
+async function deleteSim(id){
+  const ok = confirm("Delete this simulation permanently?");
+  if(!ok) return;
+
+  try {
+    await window.deleteSimulation(id);
+    loadLibrary();
+  } catch(error){
+    console.error("Delete failed:", error);
+    alert("Could not delete simulation.");
+  }
+}
   window.location.href = "teacher_builder_v5_backup.html?edit=" + id;
 }
 

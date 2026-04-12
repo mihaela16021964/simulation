@@ -150,7 +150,7 @@ loadLibrary();
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
@@ -166,6 +166,16 @@ const db = getFirestore(app);
 
 window.getFirestoreLibrary = async function() {
   return await getDocs(collection(db, "simulations"));
+};
+
+window.archiveSimulation = async function(id) {
+  const ref = doc(db, "simulations", id);
+  await updateDoc(ref, { archived: true });
+};
+
+window.deleteSimulation = async function(id) {
+  const ref = doc(db, "simulations", id);
+  await deleteDoc(ref);
 };
 
 if (window.loadLibrary) {

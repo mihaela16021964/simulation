@@ -181,6 +181,7 @@ let score = 0;
 let studentName = localStorage.getItem("pilotStudentName") || localStorage.getItem("studentName") || "Student";
 
 async function loadSimulation(){
+  document.getElementById("content").innerHTML = "<h2>Loading simulation...</h2>";
   if (!window.getSimulationById) {
     document.getElementById("content").innerHTML = "<h2>Loading simulation...</h2>";
     return;

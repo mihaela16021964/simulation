@@ -42,6 +42,55 @@ async function loadLibrary(){
         const sim = item.data;
         const simId = item.id;
 
+        if (sim.archived === true) {
+          return;
+        }
+
+        html += `
+          <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+            <b>${sim.title || ""}</b><br>
+            Subject: ${sim.subject || ""}<br><br>
+            <button onclick="openSim('${simId}')">Open</button>
+            <button onclick="editSim('${simId}')">Edit</button>
+            <button onclick="archiveSim('${simId}')">Archive</button>
+            <button onclick="deleteSim('${simId}')">Delete</button>
+          </div>
+        `;
+      });
+    }
+
+    document.getElementById("library").innerHTML = html;
+
+  } catch (error) {
+    console.error("Failed to load Firestore library:", error);
+    document.getElementById("library").innerHTML =
+      "<p>Could not load simulations from Firestore.</p>";
+  }
+}
+
+  try {
+    const snapshot = await window.getFirestoreLibrary();
+
+    if (snapshot.empty) {
+      html = "<p>No simulations saved yet.</p>";
+    } else {
+      const docs = [];
+
+      snapshot.forEach(docSnap => {
+        docs.push({
+          id: docSnap.id,
+          data: docSnap.data()
+        });
+      });
+
+      docs.sort((a, b) => {
+        return new Date(b.data.createdAt) - new Date(a.data.createdAt);
+      });
+
+      docs.forEach(item => {
+        const sim = item.data;
+        const simId = item.id;
+
         html += `
           <div style="border:1px solid #ccc; padding:10px; margin:10px;">
             <b>${sim.title || ""}</b><br>

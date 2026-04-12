@@ -166,7 +166,10 @@ small{
 </style>
 </head>
 <body>
-
+<div style="margin-bottom:15px;">
+  <button onclick="goHome()" class="gray">Home</button>
+  <button onclick="goLibrary()" class="gray">Teacher Library</button>
+</div>
 <div class="container">
 
   <h2>SatooriLabs – Teacher Builder V5</h2>
@@ -540,6 +543,14 @@ function deleteStage(){
   updatePreview();
 }
 
+  function goHome(){
+  window.location.href = "index.html";
+}
+
+function goLibrary(){
+  window.location.href = "library_teacher_v5.html";
+}
+  
 function renderTable(table){
   const hasTitle = table.title && table.title.trim() !== "";
   const hasHeaders = table.headers.some(h => h && h.trim() !== "");

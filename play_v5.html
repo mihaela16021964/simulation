@@ -189,6 +189,7 @@ async function loadSimulation(){
 
   try {
     simulation = await window.getSimulationById(simulationId);
+    console.log("SIMULATION LOADED:", simulation);
 
     if(!simulation){
       document.getElementById("content").innerHTML = "<h2>Simulation not found.</h2><p>Please return to the homepage.</p>";

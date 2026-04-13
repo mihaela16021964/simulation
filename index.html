@@ -3,62 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SatooriLabs – Interactive Case Studies Platform</title>
+<title>SatooriLabs – Interactive Simulation Platform</title>
 
 <style>
 body{
-  font-family: Arial, sans-serif;
   margin:0;
-  background:#f4f7fb;
+  font-family:Arial, sans-serif;
+  background:#f5f7fb;
   color:#1e293b;
 }
 
 .header{
-  background:#2563eb;
+  background:#0f172a;
   color:white;
-  padding:16px 24px;
+  padding:18px 28px;
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
 
 .logo{
-  font-size:20px;
+  font-size:22px;
   font-weight:bold;
+  letter-spacing:0.4px;
+}
+
+.tag{
+  font-size:14px;
+  color:#cbd5e1;
 }
 
 .hero{
-  padding:60px 20px;
-  text-align:center;
+  max-width:1100px;
+  margin:40px auto 0 auto;
   background:white;
+  border-radius:18px;
+  padding:60px 40px;
+  box-shadow:0 10px 30px rgba(15,23,42,0.08);
+  text-align:center;
 }
 
 .hero h1{
-  font-size:36px;
-  margin-bottom:16px;
+  font-size:42px;
+  margin:0 0 18px 0;
+  color:#0f172a;
 }
 
 .hero p{
-  font-size:18px;
+  max-width:760px;
+  margin:0 auto;
+  font-size:19px;
+  line-height:1.6;
   color:#475569;
-  max-width:700px;
-  margin:auto;
 }
 
 .buttons{
-  margin-top:30px;
+  margin-top:34px;
 }
 
 button{
-  padding:14px 20px;
+  padding:14px 22px;
   margin:10px;
   border:none;
-  border-radius:10px;
+  border-radius:12px;
   font-size:16px;
   cursor:pointer;
-  <button onclick="location.href='login.html'">
-  Login
-</button>
+  transition:0.2s ease;
+}
+
+button:hover{
+  transform:translateY(-1px);
 }
 
 .primary{
@@ -68,24 +82,39 @@ button{
 
 .secondary{
   background:#e2e8f0;
-  color:#1e293b;
+  color:#0f172a;
 }
 
 .section{
-  padding:40px 20px;
-  max-width:900px;
-  margin:auto;
+  max-width:1100px;
+  margin:26px auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  gap:20px;
 }
 
-.section h2{
-  margin-bottom:12px;
+.card{
+  background:white;
+  border-radius:16px;
+  padding:26px;
+  box-shadow:0 8px 24px rgba(15,23,42,0.06);
+}
+
+.card h3{
+  margin-top:0;
+  color:#0f172a;
+}
+
+.card p{
+  color:#475569;
+  line-height:1.6;
 }
 
 .footer{
   text-align:center;
-  padding:20px;
-  font-size:14px;
+  padding:28px;
   color:#64748b;
+  font-size:14px;
 }
 </style>
 </head>
@@ -93,56 +122,50 @@ button{
 <body>
 
 <div class="header">
-  <div class="logo">SatooriLabs</div>
+  <div>
+    <div class="logo">SatooriLabs</div>
+    <div class="tag">Interactive Simulation Platform</div>
+  </div>
 </div>
 
 <div class="hero">
-  <h1>Interactive Case Studies Platform</h1>
-
+  <h1>Learning through decisions, not memorisation.</h1>
   <p>
-    A safe environment where students learn by making decisions,
-    exploring consequences, and developing real-world thinking.
-    Designed for teachers. Built for modern education.
+    SatooriLabs helps teachers create interactive simulations where students analyse situations,
+    make choices, explore consequences, and develop real-world thinking in a safe digital environment.
   </p>
 
   <div class="buttons">
-    <button class="primary" onclick="location.href='teacher_builder_v5_backup.html'">
-      Create Simulation
-    </button>
-
-    <button class="secondary" onclick="location.href='teacher_tracker_v1.html'">
-  Teacher Tracker
-</button>
-    <button class="secondary" onclick="location.href='library_teacher_v5.html'">
-      Teacher Library
-    </button>
-
-    <button class="secondary" onclick="location.href='student_library_v2.html'">
-      Student Library
-    </button>
+    <button class="primary" onclick="location.href='login.html'">Teacher Login</button>
+    <button class="secondary" onclick="location.href='student_login.html'">Student Login</button>
   </div>
 </div>
 
 <div class="section">
-  <h2>What is this platform?</h2>
-  <p>
-    This platform allows teachers to create interactive case studies tailored
-    to their students' level and subject. Students engage with real-life scenarios,
-    make decisions, and reflect on outcomes in a structured, meaningful way.
-  </p>
-</div>
+  <div class="card">
+    <h3>For teachers</h3>
+    <p>
+      Build scenario-based simulations, organise them in your library, and track student participation and results.
+    </p>
+  </div>
 
-<div class="section">
-  <h2>Why it matters</h2>
-  <p>
-    Students do not learn effectively through memorisation alone.
-    They learn by doing, deciding, and understanding consequences.
-    This platform provides a safe space to explore decisions without real-world risk.
-  </p>
+  <div class="card">
+    <h3>For students</h3>
+    <p>
+      Enter simulations, respond to realistic situations, receive feedback, and review your own results.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>For institutions</h3>
+    <p>
+      Support active learning, decision-making, and employability skills through structured digital practice.
+    </p>
+  </div>
 </div>
 
 <div class="footer">
-  © SatooriLabs – Interactive Case Studies Platform
+  © SatooriLabs – Interactive Simulation Platform
 </div>
 
 </body>

@@ -65,6 +65,14 @@ window.login = async function(){
   const data = snap.data();
 
   if(data.password !== password){
+  document.getElementById("msg").innerText = "Wrong password";
+  return;
+}
+
+localStorage.setItem("studentName", name);
+
+window.location.href = "student_home.html";
+  if(data.password !== password){
     document.getElementById("msg").innerText = "Wrong password";
     return;
   }

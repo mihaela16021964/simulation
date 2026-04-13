@@ -34,6 +34,27 @@ th{
   background:#2563eb;
   color:white;
 }
+
+button{
+  padding:8px 12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.blue{
+  background:#2563eb;
+  color:white;
+}
+
+.red{
+  background:#dc2626;
+  color:white;
+}
+
+.gray{
+  background:#e5e7eb;
+}
 </style>
 
 </head>
@@ -47,12 +68,10 @@ th{
 <input type="text" id="studentSearch" placeholder="Enter your name"
 style="width:100%;padding:10px;margin-top:10px;">
 
-<button onclick="loadStudentResults()"
-style="margin-top:10px;padding:10px;background:#2563eb;color:white;border:none;">
-
-Load My Results
-
-</button>
+<div style="margin-top:10px;">
+  <button class="blue" onclick="loadStudentResults()">Load My Results</button>
+  <button class="gray" onclick="goHome()">Homepage</button>
+</div>
 
 <table>
 <thead>
@@ -60,6 +79,7 @@ Load My Results
 <th>Simulation</th>
 <th>Score</th>
 <th>Date</th>
+<th>Action</th>
 </tr>
 </thead>
 
@@ -71,25 +91,47 @@ Load My Results
 </div>
 
 <script>
+let currentResults = [];
+
 function loadStudentResults(){
-
-  let name = document.getElementById("studentSearch").value;
-
+  let name = document.getElementById("studentSearch").value.trim();
   let results = JSON.parse(localStorage.getItem("customResults") || "[]");
+
+  currentResults = results
+    .map((r, index) => ({ ...r, index }))
+    .filter(r => r.name === name);
 
   let table = "";
 
-  results.forEach(r => {
-    if(r.name === name){
-      table += "<tr>";
-      table += "<td>" + (r.simulation || "") + "</td>";
-      table += "<td>" + (r.score || "") + "</td>";
-      table += "<td>" + (r.date || "") + "</td>";
-      table += "</tr>";
-    }
+  currentResults.forEach(r => {
+    table += "<tr>";
+    table += "<td>" + (r.simulation || "") + "</td>";
+    table += "<td>" + (r.score || "") + "</td>";
+    table += "<td>" + (r.date || "") + "</td>";
+    table += `<td><button class="red" onclick="deleteResult(${r.index})">Delete</button></td>`;
+    table += "</tr>";
   });
 
+  if(currentResults.length === 0){
+    table = `<tr><td colspan="4">No results found for this student.</td></tr>`;
+  }
+
   document.getElementById("studentResults").innerHTML = table;
+}
+
+function deleteResult(index){
+  const ok = confirm("Delete this result?");
+  if(!ok) return;
+
+  let results = JSON.parse(localStorage.getItem("customResults") || "[]");
+  results.splice(index, 1);
+  localStorage.setItem("customResults", JSON.stringify(results));
+
+  loadStudentResults();
+}
+
+function goHome(){
+  window.location.href = "index.html";
 }
 </script>
 

@@ -6,7 +6,9 @@
 <body>
 
 <h2>Teacher Library V5</h2>
-
+<button onclick="location.href='teacher_tracker_v1.html'" class="gray">
+  Go to Tracker
+</button>
 <div id="library"></div>
 
 <script>
@@ -57,11 +59,7 @@ async function loadLibrary(){
     <button onclick="deleteSim('${simId}')">Delete</button>
   </div>
 `;
-            <button onclick="location.href='teacher_tracker_v1.html'" class="gray">
-  Tracker
-</button>
-          </div>
-        `;
+           
       });
 
       if (html === "") {

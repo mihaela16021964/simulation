@@ -83,6 +83,9 @@ function editSim(id){
   window.location.href = "teacher_builder_v5_backup.html?edit=" + id;
 }
 
+  function goTracker(){
+  window.location.href = "teacher_tracker_v1.html";
+}
 async function archiveSim(id){
   const ok = confirm("Archive this simulation?");
   if(!ok) return;

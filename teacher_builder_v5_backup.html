@@ -735,6 +735,69 @@ window.saveToFirestore = async function(simulationObject) {
 };
   
 </script>
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
+  authDomain: "satoori-simulations.firebaseapp.com",
+  projectId: "satoori-simulations",
+  storageBucket: "satoori-simulations.firebasestorage.app",
+  messagingSenderId: "62316008106",
+  appId: "1:62316008106:web:68a421970d857348e476d3"
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user || !user.email) {
+    alert("Please login first.");
+    window.location.href = "login.html";
+    return;
+  }
+
+  try {
+    const ref = doc(db, "users", user.email);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      alert("No teacher access found for this account.");
+      window.location.href = "index.html";
+      return;
+    }
+
+    const access = snap.data();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const start = new Date(access.accessStart);
+    const end = new Date(access.accessEnd);
+
+    if (
+      access.role !== "teacher" ||
+      access.active !== true ||
+      access.paidTeacher !== true ||
+      isNaN(start) ||
+      isNaN(end) ||
+      today < start ||
+      today > end
+    ) {
+      alert("Your teacher access is not active.");
+      window.location.href = "index.html";
+      return;
+    }
+
+  } catch (error) {
+    console.error("Access check failed:", error);
+    alert("Could not verify teacher access.");
+    window.location.href = "index.html";
+  }
+});
+</script>
 </body>
 </html>

@@ -47,13 +47,16 @@ async function loadLibrary(){
         }
 
         html += `
-          <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-            <b>${sim.title || ""}</b><br>
-            Subject: ${sim.subject || ""}<br><br>
-            <button onclick="openSim('${simId}')">Open</button>
-            <button onclick="editSim('${simId}')">Edit</button>
-            <button onclick="archiveSim('${simId}')">Archive</button>
-            <button onclick="deleteSim('${simId}')">Delete</button>
+  <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+    <b>${sim.title || ""}</b><br>
+    Subject: ${sim.subject || ""}<br><br>
+    <button onclick="openSim('${simId}')">Open</button>
+    <button onclick="editSim('${simId}')">Edit</button>
+    <button onclick="copySimLink('${simId}')">Copy Student Link</button>
+    <button onclick="archiveSim('${simId}')">Archive</button>
+    <button onclick="deleteSim('${simId}')">Delete</button>
+  </div>
+`;
             <button onclick="location.href='teacher_tracker_v1.html'" class="gray">
   Tracker
 </button>
@@ -82,7 +85,17 @@ function openSim(id){
 function editSim(id){
   window.location.href = "teacher_builder_v5_backup.html?edit=" + id;
 }
+async function copySimLink(id){
+  const link = `${window.location.origin}${window.location.pathname.replace('library_teacher_v5.html','play_v5.html')}?id=${id}`;
 
+  try {
+    await navigator.clipboard.writeText(link);
+    alert("Student link copied.");
+  } catch(error){
+    console.error("Copy failed:", error);
+    prompt("Copy this student link:", link);
+  }
+}
   function goTracker(){
   window.location.href = "teacher_tracker_v1.html";
 }

@@ -1,78 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SatooriLabs — Student Login</title>
-
-<style>
-
-body{
-font-family: Arial;
-text-align:center;
-background:#f0f4f8;
-}
-
-.box{
-background:white;
-width:300px;
-margin:auto;
-margin-top:100px;
-padding:30px;
-border-radius:10px;
-box-shadow:0 0 10px gray;
-}
-
-input{
-width:90%;
-padding:10px;
-margin:10px;
-}
-
-button{
-padding:10px 20px;
-background:#007BFF;
-color:white;
-border:none;
-border-radius:5px;
-cursor:pointer;
-}
-
-</style>
-
+  <title>Student Login</title>
 </head>
 
-<body>
-
-<div class="box">
+<body style="font-family:Arial; padding:40px;">
 
 <h2>Student Login</h2>
 
-<input type="text" id="studentName" placeholder="Enter your name">
+<input id="name" placeholder="First name or nickname"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
 
-<br>
+<button onclick="login()">Login</button>
+<button onclick="signup()">Sign up</button>
 
-<button onclick="login()">
-Enter Platform
-</button>
+<p id="msg"></p>
 
-</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-<script>
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "satoori-simulations.firebaseapp.com",
+  projectId: "satoori-simulations"
+};
 
-function login(){
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-let name = document.getElementById("studentName").value;
+window.signup = async function(){
+  const name = document.getElementById("name").value.trim();
+  const password = document.getElementById("password").value;
 
-if(name===""){
-alert("Please enter your name");
-return;
-}
+  if(!name || !password){
+    document.getElementById("msg").innerText = "Fill all fields";
+    return;
+  }
 
-localStorage.setItem("studentName", name);
+  const id = name.toLowerCase();
 
-window.location.href="health_simulation_v2.html";
+  await setDoc(doc(db, "students", id), {
+    name: name,
+    password: password
+  });
 
-}
+  document.getElementById("msg").innerText = "Account created";
+};
 
+window.login = async function(){
+  const name = document.getElementById("name").value.trim();
+  const password = document.getElementById("password").value;
+
+  const id = name.toLowerCase();
+
+  const ref = doc(db, "students", id);
+  const snap = await getDoc(ref);
+
+  if(!snap.exists()){
+    document.getElementById("msg").innerText = "Student not found";
+    return;
+  }
+
+  const data = snap.data();
+
+  if(data.password !== password){
+    document.getElementById("msg").innerText = "Wrong password";
+    return;
+  }
+
+  localStorage.setItem("studentName", name);
+
+  window.location.href = "index.html";
+};
 </script>
 
 </body>

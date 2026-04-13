@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Home</title>
+  <style>
+    body{
+      font-family:Arial;
+      background:#f4f7fb;
+      margin:0;
+      padding:40px;
+    }
+    .card{
+      max-width:700px;
+      margin:auto;
+      background:white;
+      padding:30px;
+      border-radius:12px;
+      box-shadow:0 0 10px rgba(0,0,0,0.08);
+    }
+    h2{
+      margin-top:0;
+    }
+    button{
+      padding:12px 16px;
+      margin:10px 10px 0 0;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+    }
+    .blue{
+      background:#2563eb;
+      color:white;
+    }
+    .gray{
+      background:#e5e7eb;
+    }
+    input{
+      width:100%;
+      padding:10px;
+      margin-top:10px;
+      border:1px solid #cbd5e1;
+      border-radius:10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Student Area</h2>
+  <p id="welcome"></p>
+
+  <input id="simulationLink" placeholder="Paste simulation link here">
+
+  <div style="margin-top:10px;">
+    <button class="blue" onclick="openSimulation()">Open Simulation</button>
+    <button class="gray" onclick="goResults()">My Results</button>
+    <button class="gray" onclick="logoutStudent()">Logout</button>
+  </div>
+</div>
+
+<script>
+const studentName = localStorage.getItem("studentName") || "";
+
+document.getElementById("welcome").innerText =
+  studentName ? "Welcome, " + studentName : "Welcome";
+
+function openSimulation(){
+  const link = document.getElementById("simulationLink").value.trim();
+  if(!link){
+    alert("Please paste a simulation link.");
+    return;
+  }
+  window.location.href = link;
+}
+
+function goResults(){
+  window.location.href = "student_library_v2.html";
+}
+
+function logoutStudent(){
+  localStorage.removeItem("studentName");
+  window.location.href = "student_login.html";
+}
+</script>
+
+</body>
+</html>

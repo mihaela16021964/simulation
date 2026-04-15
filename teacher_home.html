@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SatooriLabs – Teacher Home</title>
+<style>
+body{
+  font-family:Arial, sans-serif;
+  background:#f4f7fb;
+  margin:0;
+  padding:40px;
+}
+.card{
+  max-width:900px;
+  margin:auto;
+  background:white;
+  padding:30px;
+  border-radius:14px;
+  box-shadow:0 0 10px rgba(0,0,0,0.08);
+}
+h2{margin-top:0;}
+button{
+  padding:14px 18px;
+  margin:10px 10px 0 0;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:16px;
+}
+.blue{background:#2563eb;color:white;}
+.gray{background:#e5e7eb;color:#111827;}
+.red{background:#dc2626;color:white;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Teacher Area</h2>
+  <p>Welcome to SatooriLabs.</p>
+
+  <button class="blue" onclick="location.href='teacher_builder_v5_backup.html'">Builder</button>
+  <button class="gray" onclick="location.href='library_teacher_v5.html'">Teacher Library</button>
+  <button class="gray" onclick="location.href='teacher_tracker_v1.html'">Tracker</button>
+  <button class="red" onclick="logoutTeacher()">Logout</button>
+</div>
+
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
+  authDomain: "satoori-simulations.firebaseapp.com",
+  projectId: "satoori-simulations",
+  storageBucket: "satoori-simulations.firebasestorage.app",
+  messagingSenderId: "62316008106",
+  appId: "1:62316008106:web:68a421970d857348e476d3"
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+  }
+});
+
+window.logoutTeacher = async function(){
+  await signOut(auth);
+  localStorage.removeItem("userLoggedIn");
+  window.location.href = "index.html";
+};
+</script>
+
+</body>
+</html>

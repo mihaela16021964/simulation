@@ -480,9 +480,9 @@ function getYouTubeEmbed(url){
   } else if(url.includes("youtu.be/")){
     id = url.split("youtu.be/")[1].split("?")[0];
   }
-  if(id){
+ if(id){
   return `
-    <div style="position:relative; padding-bottom:56.25%; height:0; margin-top:10px;">
+    <div style="position:relative; width:100%; padding-bottom:56.25%; margin-top:10px;">
       <iframe 
         src="https://www.youtube.com/embed/${id}"
         style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius:10px;"

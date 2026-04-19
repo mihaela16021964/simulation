@@ -482,12 +482,14 @@ function getYouTubeEmbed(url){
   }
   if(id){
   return `
-    <iframe 
-      style="width:100%; height:200px; border-radius:10px; margin-top:10px;"
-      src="https://www.youtube.com/embed/${id}" 
-      frameborder="0" 
-      allowfullscreen>
-    </iframe>
+    <div style="position:relative; padding-bottom:56.25%; height:0; margin-top:10px;">
+      <iframe 
+        src="https://www.youtube.com/embed/${id}"
+        style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius:10px;"
+        frameborder="0" 
+        allowfullscreen>
+      </iframe>
+    </div>
   `;
 }
 return "";

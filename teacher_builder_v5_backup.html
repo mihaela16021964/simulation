@@ -879,7 +879,8 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   try {
-    const ref = doc(db, "users", user.email);
+    const email = user.email.toLowerCase().trim();
+const ref = doc(db, "users", email);
     const snap = await getDoc(ref);
 
     if (!snap.exists()) {

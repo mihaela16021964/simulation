@@ -877,7 +877,7 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "login.html";
     return;
   }
-
+console.log("Logged email:", user.email);
   try {
     const email = user.email.toLowerCase().trim();
 const ref = doc(db, "users", email);

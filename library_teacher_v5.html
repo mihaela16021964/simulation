@@ -187,8 +187,18 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   try {
-    const ref = doc(db, "users", user.email);
-    const snap = await getDoc(ref);
+   import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const q = query(collection(db, "users"), where("email", "==", email));
+const querySnapshot = await getDocs(q);
+
+if (querySnapshot.empty) {
+  alert("No teacher access found for this account.");
+  window.location.href = "index.html";
+  return;
+}
+
+const access = querySnapshot.docs[0].data();
 
     if (!snap.exists()) {
       alert("No teacher access found for this account.");

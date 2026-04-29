@@ -221,6 +221,9 @@ onAuthStateChanged(auth, async (user) => {
       return;
     }
 
+    // ✅ IMPORTANT: ONLY LOAD LIBRARY AFTER ACCESS IS CONFIRMED
+    loadLibrary();
+
   } catch (error) {
     console.error("Access check failed:", error);
     alert("Could not verify teacher access.");

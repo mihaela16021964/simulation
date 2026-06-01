@@ -232,7 +232,7 @@ onAuthStateChanged(auth, async (user) => {
     window.getFirestoreLibrary = async function() {
   return await getDocs(collection(db, "simulations"));
 };
-    loadLibrary();
+  
 
   } catch (error) {
     console.error("Access check failed:", error);

@@ -152,9 +152,7 @@ const db = getFirestore(app);
   console.log("Firestore library module loaded");
 console.log("getDocs =", getDocs);
 
-window.getFirestoreLibrary = async function() {
-  return await getDocs(collection(db, "simulations"));
-};
+loadLibrary();
 
 window.archiveSimulation = async function(id) {
   const ref = doc(db, "simulations", id);

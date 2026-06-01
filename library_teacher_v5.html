@@ -149,6 +149,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+  console.log("Firestore library module loaded");
+console.log("getDocs =", getDocs);
 
 window.getFirestoreLibrary = async function() {
   return await getDocs(collection(db, "simulations"));

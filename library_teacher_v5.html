@@ -229,9 +229,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     // ✅ IMPORTANT: ONLY LOAD LIBRARY AFTER ACCESS IS CONFIRMED
-    window.getFirestoreLibrary = async function() {
-  return await getDocs(collection(db, "simulations"));
-};
+   loadLibrary();
   
 
   } catch (error) {

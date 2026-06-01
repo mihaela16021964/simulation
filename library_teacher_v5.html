@@ -229,7 +229,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     // ✅ IMPORTANT: ONLY LOAD LIBRARY AFTER ACCESS IS CONFIRMED
-   loadLibrary();
+   setTimeout(loadLibrary, 500);
   
 
   } catch (error) {

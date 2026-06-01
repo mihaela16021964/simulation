@@ -129,7 +129,15 @@ loadLibrary();
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  updateDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 const firebaseConfig = {
   apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
   authDomain: "satoori-simulations.firebaseapp.com",

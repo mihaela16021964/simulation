@@ -6,129 +6,15 @@
 <body>
 
 <h2>Teacher Library V5</h2>
-<button onclick="location.href='teacher_tracker_v1.html'" class="gray">
-  Go to Tracker
-</button>
-<div id="library"></div>
 
-<script>
-async function loadLibrary(){
-  let html = "";
+<button onclick="location.href='teacher_home.html'" class="gray">Home</button>
+<button onclick="location.href='teacher_tracker_v1.html'" class="gray">Go to Tracker</button>
 
-  if (!window.getFirestoreLibrary) {
-    document.getElementById("library").innerHTML =
-      "<p>Loading simulations...</p>";
-    return;
-  }
-
-  try {
-    const snapshot = await window.getFirestoreLibrary();
-
-    if (snapshot.empty) {
-      html = "<p>No simulations saved yet.</p>";
-    } else {
-      const docs = [];
-
-      snapshot.forEach(docSnap => {
-        docs.push({
-          id: docSnap.id,
-          data: docSnap.data()
-        });
-      });
-
-      docs.sort((a, b) => {
-        return new Date(b.data.createdAt || 0) - new Date(a.data.createdAt || 0);
-      });
-
-      docs.forEach(item => {
-        const sim = item.data;
-        const simId = item.id;
-
-        if (sim.archived === true) {
-          return;
-        }
-
-        html += `
-  <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-    <b>${sim.title || ""}</b><br>
-    Subject: ${sim.subject || ""}<br><br>
-    <button onclick="openSim('${simId}')">Open</button>
-    <button onclick="editSim('${simId}')">Edit</button>
-    <button onclick="copySimLink('${simId}')">Copy Student Link</button>
-    <button onclick="archiveSim('${simId}')">Archive</button>
-    <button onclick="deleteSim('${simId}')">Delete</button>
-  </div>
-`;
-           
-      });
-
-      if (html === "") {
-        html = "<p>No active simulations. They may all be archived.</p>";
-      }
-    }
-
-    document.getElementById("library").innerHTML = html;
-
-  } catch (error) {
-    console.error("Failed to load Firestore library:", error);
-    document.getElementById("library").innerHTML =
-      "<p>Could not load simulations from Firestore.</p>";
-  }
-}
-
-function openSim(id){
-  window.location.href = "play_v5.html?id=" + id;
-}
-
-function editSim(id){
-  window.location.href = "teacher_builder_v5_backup.html?edit=" + id;
-}
-async function copySimLink(id){
-  const link = `${window.location.origin}${window.location.pathname.replace('library_teacher_v5.html','play_v5.html')}?id=${id}`;
-
-  try {
-    await navigator.clipboard.writeText(link);
-    alert("Student link copied.");
-  } catch(error){
-    console.error("Copy failed:", error);
-    prompt("Copy this student link:", link);
-  }
-}
-  function goTracker(){
-  window.location.href = "teacher_tracker_v1.html";
-}
-async function archiveSim(id){
-  const ok = confirm("Archive this simulation?");
-  if(!ok) return;
-
-  try {
-    await window.archiveSimulation(id);
-    loadLibrary();
-  } catch(error){
-    console.error("Archive failed:", error);
-    alert("Could not archive simulation.");
-  }
-}
-
-async function deleteSim(id){
-  const ok = confirm("Delete this simulation permanently?");
-  if(!ok) return;
-
-  try {
-    await window.deleteSimulation(id);
-    loadLibrary();
-  } catch(error){
-    console.error("Delete failed:", error);
-    alert("Could not delete simulation.");
-  }
-}
-
-window.loadLibrary = loadLibrary;
-loadLibrary();
-</script>
+<div id="library">Checking teacher access...</div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import {
   getFirestore,
   doc,
@@ -138,40 +24,6 @@ import {
   updateDoc,
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-const firebaseConfig = {
-  apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
-  authDomain: "satoori-simulations.firebaseapp.com",
-  projectId: "satoori-simulations",
-  storageBucket: "satoori-simulations.firebasestorage.app",
-  messagingSenderId: "62316008106",
-  appId: "1:62316008106:web:68a421970d857348e476d3"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-  console.log("Firestore library module loaded");
-console.log("getDocs =", getDocs);
-
-loadLibrary();
-
-window.archiveSimulation = async function(id) {
-  const ref = doc(db, "simulations", id);
-  await updateDoc(ref, { archived: true });
-};
-
-window.deleteSimulation = async function(id) {
-  const ref = doc(db, "simulations", id);
-  await deleteDoc(ref);
-};
-
-if (window.loadLibrary) {
-  window.loadLibrary();
-}
-</script>
-<script type="module">
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
@@ -197,16 +49,16 @@ onAuthStateChanged(auth, async (user) => {
     const email = user.email.toLowerCase().trim();
     console.log("Logged email:", email);
 
-    const ref = doc(db, "users", email);
-    const snap = await getDoc(ref);
+    const userRef = doc(db, "users", email);
+    const userSnap = await getDoc(userRef);
 
-    if (!snap.exists()) {
+    if (!userSnap.exists()) {
       alert("No teacher access found for this account.");
       window.location.href = "index.html";
       return;
     }
 
-    const access = snap.data();
+    const access = userSnap.data();
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -228,9 +80,7 @@ onAuthStateChanged(auth, async (user) => {
       return;
     }
 
-    // ✅ IMPORTANT: ONLY LOAD LIBRARY AFTER ACCESS IS CONFIRMED
-   setTimeout(loadLibrary, 500);
-  
+    loadLibrary();
 
   } catch (error) {
     console.error("Access check failed:", error);
@@ -238,6 +88,112 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "index.html";
   }
 });
+
+async function loadLibrary(){
+  const libraryDiv = document.getElementById("library");
+  libraryDiv.innerHTML = "<p>Loading simulations...</p>";
+
+  try {
+    const snapshot = await getDocs(collection(db, "simulations"));
+
+    let html = "";
+
+    if (snapshot.empty) {
+      html = "<p>No simulations saved yet.</p>";
+    } else {
+      const docs = [];
+
+      snapshot.forEach(docSnap => {
+        docs.push({
+          id: docSnap.id,
+          data: docSnap.data()
+        });
+      });
+
+      docs.sort((a, b) => {
+        return new Date(b.data.createdAt || 0) - new Date(a.data.createdAt || 0);
+      });
+
+      docs.forEach(item => {
+        const sim = item.data;
+        const simId = item.id;
+
+        if (sim.archived === true) return;
+
+        html += `
+          <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+            <b>${sim.title || ""}</b><br>
+            Subject: ${sim.subject || ""}<br><br>
+            <button onclick="openSim('${simId}')">Open</button>
+            <button onclick="editSim('${simId}')">Edit</button>
+            <button onclick="copySimLink('${simId}')">Copy Student Link</button>
+            <button onclick="archiveSim('${simId}')">Archive</button>
+            <button onclick="deleteSim('${simId}')">Delete</button>
+          </div>
+        `;
+      });
+
+      if (html === "") {
+        html = "<p>No active simulations. They may all be archived.</p>";
+      }
+    }
+
+    libraryDiv.innerHTML = html;
+
+  } catch (error) {
+    console.error("Failed to load Firestore library:", error);
+    libraryDiv.innerHTML = "<p>Could not load simulations from Firestore.</p>";
+  }
+}
+
+window.openSim = function(id){
+  window.location.href = "play_v5.html?id=" + id;
+};
+
+window.editSim = function(id){
+  window.location.href = "teacher_builder_v5_backup.html?edit=" + id;
+};
+
+window.copySimLink = async function(id){
+  const link = `${window.location.origin}${window.location.pathname.replace('library_teacher_v5.html','play_v5.html')}?id=${id}`;
+
+  try {
+    await navigator.clipboard.writeText(link);
+    alert("Student link copied.");
+  } catch(error){
+    console.error("Copy failed:", error);
+    prompt("Copy this student link:", link);
+  }
+};
+
+window.archiveSim = async function(id){
+  const ok = confirm("Archive this simulation?");
+  if(!ok) return;
+
+  try {
+    const ref = doc(db, "simulations", id);
+    await updateDoc(ref, { archived: true });
+    loadLibrary();
+  } catch(error){
+    console.error("Archive failed:", error);
+    alert("Could not archive simulation.");
+  }
+};
+
+window.deleteSim = async function(id){
+  const ok = confirm("Delete this simulation permanently?");
+  if(!ok) return;
+
+  try {
+    const ref = doc(db, "simulations", id);
+    await deleteDoc(ref);
+    loadLibrary();
+  } catch(error){
+    console.error("Delete failed:", error);
+    alert("Could not delete simulation.");
+  }
+};
 </script>
+
 </body>
 </html>

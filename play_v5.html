@@ -178,7 +178,11 @@ let simulation = null;
 
 let currentStage = 0;
 let score = 0;
-let studentName = localStorage.getItem("pilotStudentName") || localStorage.getItem("studentName") || "Student";
+let studentName = (function(){
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem("satooriStudent") || "null"); } catch(e){}
+  return (saved && saved.name) || localStorage.getItem("pilotStudentName") || localStorage.getItem("studentName") || "Student";
+})();
 
 async function loadSimulation(){
   document.getElementById("content").innerHTML = "<h2>Loading simulation...</h2>";

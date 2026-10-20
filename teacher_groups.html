@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SatooriLabs – Groups</title>
+<style>
+  body{font-family:Arial, sans-serif;background:#f4f7fb;margin:0;padding:20px;}
+  .container{max-width:1000px;margin:auto;}
+  .card{background:#fff;padding:24px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.08);margin-bottom:20px;}
+  h2{margin-top:0;}
+  small{color:#475569;display:block;line-height:1.5;}
+  label{font-weight:bold;display:block;margin-top:12px;}
+  input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:10px;margin-top:6px;}
+  button{padding:10px 14px;border:none;border-radius:10px;cursor:pointer;font-size:15px;}
+  .blue{background:#2563eb;color:#fff;}
+  .blue:hover{background:#1d4ed8;}
+  .green{background:#16a34a;color:#fff;}
+  .gray{background:#e5e7eb;color:#111827;}
+  .red{background:#dc2626;color:#fff;}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
+  .group-card{border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-top:14px;background:#f8fbff;}
+  .group-card h3{margin:0 0 6px 0;}
+  .code-badge{display:inline-block;background:#0f172a;color:#fff;font-size:20px;letter-spacing:3px;padding:8px 16px;border-radius:10px;font-family:monospace;margin:6px 0;}
+  .archived-tag{display:inline-block;background:#fee2e2;color:#991b1b;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:bold;margin-left:8px;}
+  .count-tag{display:inline-block;background:#dbeafe;color:#1d4ed8;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:bold;margin-left:8px;}
+  #message{margin-top:12px;font-weight:bold;}
+  .qr-area{margin-top:12px;padding:14px;background:#fff;border:1px dashed #cbd5e1;border-radius:10px;}
+  table{width:100%;border-collapse:collapse;margin-top:8px;}
+  th,td{padding:8px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:14px;}
+  th{background:#f1f5f9;color:#0f172a;}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="card">
+    <h2>My Groups</h2>
+    <small>
+      Create one group per class, per school year (example: "Year 2 – Group 1").<br>
+      Each group gets a <b>join code</b> and a <b>QR code</b>. Students sign up with their name + your code,
+      so every result in the Tracker is linked to the right group and the right year.
+    </small>
+
+    <label>Group name (include the school year, e.g. "Year 2 – Group 1 – 2026/27")</label>
+    <input id="groupName" placeholder="e.g. Year 2 – Group 1 – 2026/27" maxlength="80">
+
+    <div class="toolbar">
+      <button class="blue" id="createBtn">Create Group</button>
+      <button class="gray" onclick="location.href='teacher_home.html'">Home</button>
+      <button class="gray" onclick="location.href='teacher_tracker_v1.html'">Tracker</button>
+      <button class="gray" onclick="location.href='library_teacher_v5.html'">Library</button>
+    </div>
+
+    <div id="message"></div>
+  </div>
+
+  <div class="card">
+    <h3>Your groups</h3>
+    <div id="groupList"><p><i>Loading groups...</i></p></div>
+  </div>
+
+</div>
+
+<!-- Same QR library already used by qr_generator.html -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc,
+  collection, getDocs, query, where
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
+  authDomain: "satoori-simulations.firebaseapp.com",
+  projectId: "satoori-simulations",
+  storageBucket: "satoori-simulations.firebasestorage.app",
+  messagingSenderId: "62316008106",
+  appId: "1:62316008106:web:68a421970d857348e476d3"
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let teacherEmail = "";
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user || !user.email) {
+    alert("Please login first.");
+    window.location.href = "login.html";
+    return;
+  }
+  teacherEmail = user.email;
+  await loadGroups();
+});
+
+/* ---------- helpers ---------- */
+
+function msg(text, isError){
+  const el = document.getElementById("message");
+  el.innerText = text;
+  el.style.color = isError ? "#dc2626" : "#166534";
+}
+
+function makeCode(){
+  // No confusing characters: no 0/O, no 1/I/L
+  const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for(let i = 0; i < 6; i++){
+    out += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return out;
+}
+
+function joinLink(code){
+  const base = window.location.href.split("/").slice(0, -1).join("/") + "/";
+  return base + "student_login.html?code=" + code;
+}
+
+/* ---------- create ---------- */
+
+async function createGroup(){
+  const name = document.getElementById("groupName").value.trim();
+  if(!name){
+    msg("Please write a group name first.", true);
+    return;
+  }
+
+  const btn = document.getElementById("createBtn");
+  btn.disabled = true;
+  btn.innerText = "Creating...";
+
+  try {
+    // Generate a code and make sure it is not already used
+    let code = "";
+    for(let attempt = 0; attempt < 10; attempt++){
+      const candidate = makeCode();
+      const snap = await getDoc(doc(db, "groups", candidate));
+      if(!snap.exists()){
+        code = candidate;
+        break;
+      }
+    }
+
+    if(!code){
+      msg("Could not generate a free code. Please try again.", true);
+      return;
+    }
+
+    await setDoc(doc(db, "groups", code), {
+      name: name,
+      code: code,
+      teacherEmail: teacherEmail,
+      createdAt: new Date().toISOString(),
+      archived: false
+    });
+
+    document.getElementById("groupName").value = "";
+    msg("Group created! Code: " + code, false);
+    await loadGroups();
+
+  } catch(error){
+    console.error("Create group failed:", error);
+    msg("Could not create the group. Check your internet connection and try again.", true);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Create Group";
+  }
+}
+
+/* ---------- list ---------- */
+
+async function loadGroups(){
+  const listDiv = document.getElementById("groupList");
+  listDiv.innerHTML = "<p><i>Loading groups...</i></p>";
+
+  try {
+    // Single-field queries only (no composite index needed)
+    const allGroups = await getDocs(collection(db, "groups"));
+    const allStudents = await getDocs(collection(db, "students"));
+
+    // Count students per group (client side - small volumes)
+    const counts = {};
+    allStudents.forEach(d => {
+      const s = d.data();
+      const c = (s.groupCode || "").toUpperCase();
+      if(c) counts[c] = (counts[c] || 0) + 1;
+    });
+
+    const groups = [];
+    allGroups.forEach(d => groups.push(d.data()));
+
+    // Newest first, archived at the bottom
+    groups.sort((a, b) => {
+      if(!!a.archived !== !!b.archived) return a.archived ? 1 : -1;
+      return (b.createdAt || "").localeCompare(a.createdAt || "");
+    });
+
+    if(groups.length === 0){
+      listDiv.innerHTML = "<p><i>No groups yet. Create your first group above.</i></p>";
+      return;
+    }
+
+    listDiv.innerHTML = "";
+
+    groups.forEach(g => {
+      const card = document.createElement("div");
+      card.className = "group-card";
+
+      const count = counts[(g.code || "").toUpperCase()] || 0;
+
+      card.innerHTML =
+        "<h3>" + safe(g.name) +
+          (g.archived ? '<span class="archived-tag">Archived</span>' : '<span class="count-tag">' + count + ' student' + (count === 1 ? '' : 's') + '</span>') +
+        "</h3>" +
+        "<small>Join code:</small><br>" +
+        '<span class="code-badge">' + safe(g.code || "") + "</span>" +
+        '<table><tr><th>Student</th><th>Joined</th></tr>' +
+        '<tr><td colspan="2"><i>' + count + ' joined. Full names appear in the Tracker as they play.</i></td></tr>' +
+        "</table>";
+
+      const toolbar = document.createElement("div");
+      toolbar.className = "toolbar";
+
+      const btnLink = document.createElement("button");
+      btnLink.className = "gray";
+      btnLink.innerText = "Copy Join Link";
+      btnLink.onclick = () => copyText(joinLink(g.code), "Join link copied.");
+
+      const btnQR = document.createElement("button");
+      btnQR.className = "blue";
+      btnQR.innerText = "Show QR";
+      btnQR.onclick = () => showQR(card, g);
+
+      const btnPrint = document.createElement("button");
+      btnPrint.className = "gray";
+      btnPrint.innerText = "Print QR";
+      btnPrint.onclick = () => printQR(g);
+
+      const btnArch = document.createElement("button");
+      btnArch.className = "gray";
+      btnArch.innerText = g.archived ? "Unarchive" : "Archive";
+      btnArch.onclick = async () => {
+        const really = confirm(
+          g.archived
+            ? "Unarchive this group? Students will be able to join it again."
+            : "Archive this group? Use this for old school years. Students can no longer join, but all history stays."
+        );
+        if(!really) return;
+        try {
+          await updateDoc(doc(db, "groups", g.code), { archived: !g.archived });
+          await loadGroups();
+        } catch(e){
+          console.error(e);
+          alert("Could not update the group.");
+        }
+      };
+
+      const btnDel = document.createElement("button");
+      btnDel.className = "red";
+      btnDel.innerText = "Delete";
+      btnDel.onclick = async () => {
+        const really = confirm("Delete group '" + g.name + "' PERMANENTLY?\n\nTip: use Archive for old school years instead - history is kept.");
+        if(!really) return;
+        try {
+          await deleteDoc(doc(db, "groups", g.code));
+          await loadGroups();
+        } catch(e){
+          console.error(e);
+          alert("Could not delete the group.");
+        }
+      };
+
+      toolbar.appendChild(btnLink);
+      toolbar.appendChild(btnQR);
+      toolbar.appendChild(btnPrint);
+      toolbar.appendChild(btnArch);
+      toolbar.appendChild(btnDel);
+      card.appendChild(toolbar);
+
+      listDiv.appendChild(card);
+    });
+
+  } catch(error){
+    console.error("Load groups failed:", error);
+    listDiv.innerHTML = "<p>Could not load groups. Check your connection and refresh.</p>";
+  }
+}
+
+/* ---------- QR ---------- */
+
+function showQR(card, g){
+  // Remove any QR area already open in this card
+  const existing = card.querySelector(".qr-area");
+  if(existing){ existing.remove(); return; }
+
+  const area = document.createElement("div");
+  area.className = "qr-area";
+  area.innerHTML = "<small><b>Students scan this to join " + safe(g.name) + "</b> (opens the sign-up page with the code filled in)</small>";
+  const box = document.createElement("div");
+  box.id = "qrbox_" + g.code;
+  box.style.cssText = "background:#fff;padding:14px;border-radius:12px;display:inline-block;margin-top:10px;";
+  area.appendChild(box);
+  card.insertBefore(area, card.querySelector(".toolbar"));
+
+  new QRCode(box, {
+    text: joinLink(g.code),
+    width: 200,
+    height: 200
+  });
+}
+
+function printQR(g){
+  const w = window.open("", "_blank");
+  w.document.write("<html><head><title>Print QR</title></head><body style='font-family:Arial;text-align:center;padding:50px;'>");
+  w.document.write("<h2>" + safe(g.name) + "</h2>");
+  w.document.write("<p>Join code: <b style='font-size:26px;letter-spacing:4px;'>" + safe(g.code) + "</b></p>");
+  w.document.write("<div id='printqr'></div>");
+  w.document.write("<p style='color:#64748b;'>Scan to join this class on SatooriLabs</p>");
+  w.document.write("<scr" + "ipt src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'></scr" + "ipt>");
+  w.document.write("<scr" + "ipt>new QRCode(document.getElementById('printqr'), { text: '" + joinLink(g.code) + "', width: 260, height: 260 });</scr" + "ipt>");
+  w.document.write("</body></html>");
+  w.document.close();
+  setTimeout(() => { try { w.focus(); w.print(); } catch(e){} }, 800);
+}
+
+/* ---------- misc ---------- */
+
+async function copyText(text, okMessage){
+  try {
+    await navigator.clipboard.writeText(text);
+    msg(okMessage, false);
+  } catch(e){
+    prompt("Copy this link:", text);
+  }
+}
+
+function safe(s){
+  return (s ?? "").toString().replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
+
+window.createGroup = createGroup;
+document.getElementById("createBtn").addEventListener("click", createGroup);
+</script>
+
+</body>
+</html>

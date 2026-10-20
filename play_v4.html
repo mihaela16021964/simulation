@@ -171,7 +171,11 @@ let simulation = library.find(sim => sim.id === simulationId);
 
 let currentStage = 0;
 let score = 0;
-let studentName = localStorage.getItem("pilotStudentName") || localStorage.getItem("studentName") || "Student";
+let studentName = (function(){
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem("satooriStudent") || "null"); } catch(e){}
+  return (saved && saved.name) || localStorage.getItem("pilotStudentName") || localStorage.getItem("studentName") || "Student";
+})();
 
 if(!simulation){
   document.getElementById("content").innerHTML = "<h2>Simulation not found.</h2><p>Please return to the homepage.</p>";

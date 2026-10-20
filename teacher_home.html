@@ -3,74 +3,213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SatooriLabs – Teacher Home</title>
+<title>SatooriLabs Student Library</title>
+
 <style>
 body{
-  font-family:Arial, sans-serif;
+  font-family:Arial;
   background:#f4f7fb;
-  margin:0;
-  padding:40px;
 }
-.card{
+
+.container{
   max-width:900px;
   margin:auto;
   background:white;
   padding:30px;
-  border-radius:14px;
-  box-shadow:0 0 10px rgba(0,0,0,0.08);
-}
-h2{margin-top:0;}
-button{
-  padding:14px 18px;
-  margin:10px 10px 0 0;
-  border:none;
   border-radius:10px;
-  cursor:pointer;
-  font-size:16px;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
-.blue{background:#2563eb;color:white;}
-.gray{background:#e5e7eb;color:#111827;}
-.red{background:#dc2626;color:white;}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+
+th, td{
+  padding:12px;
+  border-bottom:1px solid #ddd;
+}
+
+th{
+  background:#2563eb;
+  color:white;
+}
+
+button{
+  padding:8px 12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.blue{
+  background:#2563eb;
+  color:white;
+}
+
+.red{
+  background:#dc2626;
+  color:white;
+}
+
+.gray{
+  background:#e5e7eb;
+}
+
+small{color:#64748b;display:block;margin-top:10px;line-height:1.5;}
 </style>
+
 </head>
+
 <body>
 
-<div class="card">
-  <h2>Teacher Area</h2>
-  <p>Welcome to SatooriLabs.</p>
+<div class="container">
 
-  <button class="blue" onclick="location.href='teacher_builder_v5_backup.html'">Builder</button>
-  <button class="gray" onclick="location.href='library_teacher_v5.html'">Teacher Library</button>
-  <button class="gray" onclick="location.href='teacher_tracker_v1.html'">Tracker</button>
-  <button class="red" onclick="logoutTeacher()">Logout</button>
+<h2>My Simulation Library</h2>
+
+<input type="text" id="studentSearch" placeholder="Enter your name"
+style="width:100%;padding:10px;margin-top:10px;">
+
+<div style="margin-top:10px;">
+  <button class="blue" onclick="loadStudentResults()">Load My Results</button>
+  <button class="gray" onclick="goHome()">Homepage</button>
 </div>
 
+<table>
+<thead>
+<tr>
+<th>Simulation</th>
+<th>Score</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="studentResults">
+</tbody>
+
+</table>
+
+<small>
+Results are loaded from the same secure database the teacher uses in the Tracker.
+Older offline results are also shown.
+</small>
+
+</div>
+
+<script>
+function safe(s){
+  return (s ?? "").toString().replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
+
+function sameName(a, b){
+  return (a || "").toString().trim().toLowerCase() === (b || "").toString().trim().toLowerCase();
+}
+
+/* Prefill from the signed-in student and load automatically */
+try {
+  const saved = JSON.parse(localStorage.getItem("satooriStudent") || "null");
+  if(saved && saved.name){
+    document.getElementById("studentSearch").value = saved.name;
+    window.addEventListener("load", loadStudentResults);
+  }
+} catch(e){}
+
+window.loadStudentResults = async function loadStudentResults(){
+  const name = document.getElementById("studentSearch").value.trim();
+  const tbody = document.getElementById("studentResults");
+
+  if(!name){
+    tbody.innerHTML = '<tr><td colspan="4">Please enter your name first.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '<tr><td colspan="4"><i>Loading your results...</i></td></tr>';
+
+  let rows = [];
+
+  /* 1) Firestore results (saved by play_v5 and the current players) */
+  try {
+    const snapshot = await window.getResultsForStudent();
+    snapshot.forEach(docSnap => {
+      const r = docSnap.data();
+      if(sameName(r.name, name)){
+        rows.push({
+          simulation: r.simulation || "",
+          score: r.score,
+          date: r.date || "",
+          local: false
+        });
+      }
+    });
+  } catch(error){
+    console.error("Firestore load failed:", error);
+  }
+
+  /* 2) Older offline results kept on this device */
+  try {
+    const local = JSON.parse(localStorage.getItem("customResults") || "[]");
+    local.forEach(r => {
+      if(sameName(r.name, name)){
+        rows.push({
+          simulation: r.simulation || "",
+          score: r.score,
+          date: r.date || "",
+          local: true
+        });
+      }
+    });
+  } catch(error){
+    console.error("Local load failed:", error);
+  }
+
+  /* Newest first */
+  rows.sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0));
+
+  if(rows.length === 0){
+    tbody.innerHTML = '<tr><td colspan="4">No results found for this student yet. Play a simulation from a link your teacher gives you.</td></tr>';
+    return;
+  }
+
+  let table = "";
+  rows.forEach(r => {
+    table += "<tr>";
+    table += "<td>" + safe(r.simulation) + "</td>";
+    table += "<td>" + safe(r.score) + "</td>";
+    table += "<td>" + safe(r.date) + "</td>";
+    /* Server results are permanent history: only offline rows can be deleted */
+    table += r.local
+      ? '<td style="color:#94a3b8;"><i>offline copy</i></td>'
+      : "<td></td>";
+    table += "</tr>";
+  });
+
+  tbody.innerHTML = table;
+};
+
+function goHome(){
+  window.location.href = "index.html";
+}
+</script>
+
 <script type="module">
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
   authDomain: "satoori-simulations.firebaseapp.com",
-  projectId: "satoori-simulations",
-  storageBucket: "satoori-simulations.firebasestorage.app",
-  messagingSenderId: "62316008106",
-  appId: "1:62316008106:web:68a421970d857348e476d3"
+  projectId: "satoori-simulations"
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-  }
-});
-
-window.logoutTeacher = async function(){
-  await signOut(auth);
-  localStorage.removeItem("userLoggedIn");
-  window.location.href = "index.html";
+window.getResultsForStudent = async function() {
+  return await getDocs(collection(db, "results"));
 };
 </script>
 

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SatooriLabs Student Library</title>
 
 <style>
@@ -55,6 +56,8 @@ button{
 .gray{
   background:#e5e7eb;
 }
+
+small{color:#64748b;display:block;margin-top:10px;line-height:1.5;}
 </style>
 
 </head>
@@ -88,51 +91,126 @@ style="width:100%;padding:10px;margin-top:10px;">
 
 </table>
 
+<small>
+Results are loaded from the same secure database the teacher uses in the Tracker.
+Older offline results are also shown.
+</small>
+
 </div>
 
 <script>
-let currentResults = [];
+function safe(s){
+  return (s ?? "").toString().replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
 
-function loadStudentResults(){
-  let name = document.getElementById("studentSearch").value.trim();
-  let results = JSON.parse(localStorage.getItem("customResults") || "[]");
+function sameName(a, b){
+  return (a || "").toString().trim().toLowerCase() === (b || "").toString().trim().toLowerCase();
+}
 
-  currentResults = results
-    .map((r, index) => ({ ...r, index }))
-    .filter(r => r.name === name);
+/* Prefill from the signed-in student and load automatically */
+try {
+  const saved = JSON.parse(localStorage.getItem("satooriStudent") || "null");
+  if(saved && saved.name){
+    document.getElementById("studentSearch").value = saved.name;
+    window.addEventListener("load", loadStudentResults);
+  }
+} catch(e){}
+
+window.loadStudentResults = async function loadStudentResults(){
+  const name = document.getElementById("studentSearch").value.trim();
+  const tbody = document.getElementById("studentResults");
+
+  if(!name){
+    tbody.innerHTML = '<tr><td colspan="4">Please enter your name first.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '<tr><td colspan="4"><i>Loading your results...</i></td></tr>';
+
+  let rows = [];
+
+  /* 1) Firestore results (saved by play_v5 and the current players) */
+  try {
+    const snapshot = await window.getResultsForStudent();
+    snapshot.forEach(docSnap => {
+      const r = docSnap.data();
+      if(sameName(r.name, name)){
+        rows.push({
+          simulation: r.simulation || "",
+          score: r.score,
+          date: r.date || "",
+          local: false
+        });
+      }
+    });
+  } catch(error){
+    console.error("Firestore load failed:", error);
+  }
+
+  /* 2) Older offline results kept on this device */
+  try {
+    const local = JSON.parse(localStorage.getItem("customResults") || "[]");
+    local.forEach(r => {
+      if(sameName(r.name, name)){
+        rows.push({
+          simulation: r.simulation || "",
+          score: r.score,
+          date: r.date || "",
+          local: true
+        });
+      }
+    });
+  } catch(error){
+    console.error("Local load failed:", error);
+  }
+
+  /* Newest first */
+  rows.sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0));
+
+  if(rows.length === 0){
+    tbody.innerHTML = '<tr><td colspan="4">No results found for this student yet. Play a simulation from a link your teacher gives you.</td></tr>';
+    return;
+  }
 
   let table = "";
-
-  currentResults.forEach(r => {
+  rows.forEach(r => {
     table += "<tr>";
-    table += "<td>" + (r.simulation || "") + "</td>";
-    table += "<td>" + (r.score || "") + "</td>";
-    table += "<td>" + (r.date || "") + "</td>";
-    table += `<td><button class="red" onclick="deleteResult(${r.index})">Delete</button></td>`;
+    table += "<td>" + safe(r.simulation) + "</td>";
+    table += "<td>" + safe(r.score) + "</td>";
+    table += "<td>" + safe(r.date) + "</td>";
+    /* Server results are permanent history: only offline rows can be deleted */
+    table += r.local
+      ? '<td style="color:#94a3b8;"><i>offline copy</i></td>'
+      : "<td></td>";
     table += "</tr>";
   });
 
-  if(currentResults.length === 0){
-    table = `<tr><td colspan="4">No results found for this student.</td></tr>`;
-  }
-
-  document.getElementById("studentResults").innerHTML = table;
-}
-
-function deleteResult(index){
-  const ok = confirm("Delete this result?");
-  if(!ok) return;
-
-  let results = JSON.parse(localStorage.getItem("customResults") || "[]");
-  results.splice(index, 1);
-  localStorage.setItem("customResults", JSON.stringify(results));
-
-  loadStudentResults();
-}
+  tbody.innerHTML = table;
+};
 
 function goHome(){
   window.location.href = "index.html";
 }
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDotQaJXVcKgfRtUfOlHB1fT5Xa3iFRIyw",
+  authDomain: "satoori-simulations.firebaseapp.com",
+  projectId: "satoori-simulations"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.getResultsForStudent = async function() {
+  return await getDocs(collection(db, "results"));
+};
 </script>
 
 </body>

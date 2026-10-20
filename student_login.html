@@ -1,20 +1,99 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Student Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Login – SatooriLabs</title>
+  <style>
+    body{
+      font-family:Arial, sans-serif;
+      background:#f4f7fb;
+      margin:0;
+      padding:30px 20px;
+    }
+    .card{
+      max-width:520px;
+      margin:auto;
+      background:white;
+      padding:30px;
+      border-radius:12px;
+      box-shadow:0 0 10px rgba(0,0,0,0.08);
+    }
+    .logo{font-size:13px;color:#94a3b8;letter-spacing:0.5px;margin-bottom:4px;}
+    h2{margin-top:0;color:#0f172a;}
+    small{color:#64748b;display:block;margin-top:8px;line-height:1.5;}
+    label{font-weight:bold;display:block;margin-top:14px;}
+    input{
+      width:100%;
+      box-sizing:border-box;
+      padding:12px;
+      margin-top:6px;
+      border:1px solid #cbd5e1;
+      border-radius:10px;
+      font-size:15px;
+    }
+    input:disabled{background:#f1f5f9;color:#334155;}
+    button{
+      width:100%;
+      padding:12px;
+      margin-top:12px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:15px;
+    }
+    .blue{background:#2563eb;color:white;}
+    .blue:hover{background:#1d4ed8;}
+    .green{background:#16a34a;color:white;}
+    .green:hover{background:#15803d;}
+    .gray{background:#e5e7eb;color:#111827;}
+    .gray:hover{background:#d1d5db;}
+    #msg{margin-top:14px;font-weight:bold;min-height:20px;}
+    .group-banner{
+      background:#f0fdf4;
+      border:1px solid #bbf7d0;
+      color:#166534;
+      border-radius:10px;
+      padding:10px 14px;
+      margin-top:12px;
+      font-weight:bold;
+    }
+    .group-banner.bad{
+      background:#fef2f2;
+      border-color:#fecaca;
+      color:#991b1b;
+    }
+  </style>
 </head>
 
-<body style="font-family:Arial; padding:40px;">
+<body>
 
-<h2>Student Login</h2>
+<div class="card">
+  <div class="logo">SATOORILABS</div>
+  <h2>Student Login</h2>
 
-<input id="name" placeholder="First name or nickname"><br><br>
-<input id="password" type="password" placeholder="Password"><br><br>
+  <label>First name or nickname</label>
+  <input id="name" placeholder="e.g. Maria" maxlength="40">
 
-<button onclick="login()">Login</button>
-<button onclick="signup()">Sign up</button>
+  <label>Password</label>
+  <input id="password" type="password" placeholder="Your password" maxlength="40">
 
-<p id="msg"></p>
+  <label>Group code (from your teacher)</label>
+  <input id="code" placeholder="e.g. XK4P2M" maxlength="6" style="text-transform:uppercase;letter-spacing:2px;">
+
+  <div id="groupBanner"></div>
+
+  <button class="green" onclick="signup()">Sign up (first time)</button>
+  <button class="blue" onclick="login()">Log in (already signed up)</button>
+  <button class="gray" onclick="location.href='index.html'">Back to homepage</button>
+
+  <div id="msg"></div>
+
+  <small>
+    <b>First time?</b> Ask your teacher for the group code, then press <b>Sign up</b>.<br>
+    <b>Already have an account?</b> Use your name and password, then press <b>Log in</b>.
+  </small>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
@@ -29,56 +108,167 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const msgEl = document.getElementById("msg");
+
+function msg(text, isError){
+  msgEl.innerText = text;
+  msgEl.style.color = isError ? "#dc2626" : "#166534";
+}
+
+function safe(s){
+  return (s ?? "").toString().replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
+
+function getCodeFromInput(){
+  return document.getElementById("code").value.trim().toUpperCase();
+}
+
+/* Remembered student from this device? Go straight to the student area. */
+try {
+  const saved = JSON.parse(localStorage.getItem("satooriStudent") || "null");
+  if(saved && saved.name){
+    window.location.href = "student_home.html";
+  }
+} catch(e){}
+
+/* Join link support: student_login.html?code=XXXXXX (from QR code / teacher link) */
+const urlCode = (new URLSearchParams(window.location.search).get("code") || "").trim().toUpperCase();
+if(urlCode){
+  const codeInput = document.getElementById("code");
+  codeInput.value = urlCode;
+  checkGroupCode(urlCode, true);
+}
+
+async function checkGroupCode(code, fromLink){
+  const banner = document.getElementById("groupBanner");
+  banner.innerHTML = "";
+  try {
+    const snap = await getDoc(doc(db, "groups", code));
+    if(!snap.exists()){
+      banner.innerHTML = '<div class="group-banner bad">Group code ' + safe(code) + ' was not found. Please check with your teacher.</div>';
+      return null;
+    }
+    const g = snap.data();
+    if(g.archived){
+      banner.innerHTML = '<div class="group-banner bad">This group has ended (archived). Please ask your teacher.</div>';
+      return null;
+    }
+    banner.innerHTML = '<div class="group-banner">✓ Group: ' + safe(g.name || code) + '</div>';
+    return g;
+  } catch(error){
+    console.error("Group check failed:", error);
+    if(fromLink){
+      banner.innerHTML = '<div class="group-banner bad">Could not check the group code. Check your internet connection.</div>';
+    }
+    return null;
+  }
+}
+
 window.signup = async function(){
   const name = document.getElementById("name").value.trim();
   const password = document.getElementById("password").value;
+  const code = getCodeFromInput();
 
-  if(!name || !password){
-    document.getElementById("msg").innerText = "Fill all fields";
+  if(!name || !password || !code){
+    msg("Please fill your name, password, and the group code from your teacher.", true);
+    return;
+  }
+  if(password.length < 4){
+    msg("Please choose a password with at least 4 characters.", true);
     return;
   }
 
-  const id = name.toLowerCase();
+  msg("Signing up...", false);
 
-  await setDoc(doc(db, "students", id), {
-    name: name,
-    password: password
-  });
+  try {
+    const group = await checkGroupCode(code, false);
+    if(!group){
+      msg("The group code is not valid. Please check with your teacher.", true);
+      return;
+    }
 
-  document.getElementById("msg").innerText = "Account created";
+    const id = name.toLowerCase();
+    const ref = doc(db, "students", id);
+    const existing = await getDoc(ref);
+
+    if(existing.exists()){
+      msg("That name is already taken. If it is you, press Log in instead.", true);
+      return;
+    }
+
+    await setDoc(ref, {
+      name: name,
+      password: password,
+      groupCode: code,
+      groupName: group.name || "",
+      joinedAt: new Date().toISOString()
+    });
+
+    localStorage.setItem("satooriStudent", JSON.stringify({
+      name: name,
+      code: code,
+      groupName: group.name || ""
+    }));
+    localStorage.setItem("studentName", name);
+    localStorage.setItem("pilotStudentName", name);
+
+    msg("Account created! Opening your student area...", false);
+    window.location.href = "student_home.html";
+
+  } catch(error){
+    console.error("Signup failed:", error);
+    msg("Sign up failed. Check your internet connection and try again.", true);
+  }
 };
-window.location.href = "student_home.html";
+
 window.login = async function(){
   const name = document.getElementById("name").value.trim();
   const password = document.getElementById("password").value;
 
-  const id = name.toLowerCase();
-
-  const ref = doc(db, "students", id);
-  const snap = await getDoc(ref);
-
-  if(!snap.exists()){
-    document.getElementById("msg").innerText = "Student not found";
+  if(!name || !password){
+    msg("Please fill your name and password.", true);
     return;
   }
 
-  const data = snap.data();
+  msg("Logging in...", false);
 
-  if(data.password !== password){
-  document.getElementById("msg").innerText = "Wrong password";
-  return;
-}
+  try {
+    const snap = await getDoc(doc(db, "students", name.toLowerCase()));
 
-localStorage.setItem("studentName", name);
+    if(!snap.exists()){
+      msg("Student not found. Check the name, or press Sign up (first time).", true);
+      return;
+    }
 
-window.location.href = "student_home.html";
-  if(data.password !== password){
-    document.getElementById("msg").innerText = "Wrong password";
-    return;
+    const data = snap.data();
+
+    if(data.password !== password){
+      msg("Wrong password. Please try again.", true);
+      return;
+    }
+
+    localStorage.setItem("satooriStudent", JSON.stringify({
+      name: name,
+      code: data.groupCode || "",
+      groupName: data.groupName || ""
+    }));
+    localStorage.setItem("studentName", name);
+    localStorage.setItem("pilotStudentName", name);
+
+    msg("Welcome back, " + name + "!", false);
+    window.location.href = "student_home.html";
+
+  } catch(error){
+    console.error("Login failed:", error);
+    msg("Login failed. Check your internet connection and try again.", true);
   }
+};
+</script>
 
-  localStorage.setItem("studentName", name);
-
+</body>
+</html>
  window.location.href = "student_home.html";
 };
 </script>

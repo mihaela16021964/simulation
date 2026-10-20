@@ -64,7 +64,11 @@ if(!id){
   document.getElementById("content").innerHTML = html;
 
   let score = 0;
-  const name = localStorage.getItem("pilotStudentName") || localStorage.getItem("studentName") || "Student";
+ const name = (function(){
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem("satooriStudent") || "null"); } catch(e){}
+    return (saved && saved.name) || localStorage.getItem("pilotStudentName") || localStorage.getItem("studentName") || "Student";
+  })();
 
   document.getElementById("opts").innerHTML = sim.options.map((o,idx)=>
     `<button onclick="choose(${idx})">${safe(o.text)}</button>`
